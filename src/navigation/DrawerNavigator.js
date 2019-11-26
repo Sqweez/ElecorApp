@@ -2,41 +2,35 @@ import React from 'react';
 import {Platform, Dimensions} from 'react-native';
 import {createAppContainer} from "react-navigation";
 import {createDrawerNavigator} from "react-navigation-drawer";
+import {createStackNavigator} from "react-navigation-stack";
 
-import Home2 from "../screens/Home2";
-import Home from "../screens/Home";
 import DrawerMenu from "../components/DrawerMenu";
-import Service from "../screens/Service";
-import Order from "../screens/Order";
+import routes from "./routes";
 
 const WIDTH = Dimensions.get('window').width;
 
 const drawerConfig = {
     drawerWidth: WIDTH * 0.83,
-    // initialRouteName: 'Order',
     contentComponent: (props) => {
         return (
-          <DrawerMenu {...props}/>
+            <DrawerMenu {...props}/>
         );
     }
 };
 
-const DrawerNavigator = createDrawerNavigator(
+const stackNavigator = createStackNavigator(
+    routes,
     {
-        Home: {
-            screen: Home
+        headerMode: 'none',
+        mode: 'card',
+        defaultNavigationOptions: {
+            gesturesEnabled: false,
         },
-        Home2: {
-            screen: Home2
-        },
-        Service: {
-            screen: Service
-        },
-        Order: {
-            screen: Order
-        }
-    },
-    drawerConfig
+    }
 );
+
+const DrawerNavigator = createDrawerNavigator({
+    Home: stackNavigator
+}, drawerConfig);
 
 export default createAppContainer(DrawerNavigator);

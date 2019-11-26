@@ -2,15 +2,21 @@ import React, {useContext} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
 import colors from "../../consts/colors";
 import {Icon} from "native-base";
-
+import {withNavigation} from 'react-navigation';
 function SecondaryHeader(props) {
+    const {children} = props;
     return(
         <View style={styles.wrapper}>
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => props.navigation.goBack()}>
-                    <Icon name="arrow-back" style={styles.icon}/>
-                </TouchableOpacity>
-                <Text style={styles.text}>{props.text || 'Назад'}</Text>
+                <View style={styles.headerContainer}>
+                    <View style={styles.leftSide}>
+                        <TouchableOpacity onPress={() => props.navigation.goBack()}>
+                            <Icon name="arrow-back" style={styles.icon}/>
+                        </TouchableOpacity>
+                        <Text style={styles.text}>{props.text || 'Назад'}</Text>
+                    </View>
+                    {children}
+                </View>
             </View>
         </View>
     );
@@ -37,7 +43,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginLeft: 17,
         marginTop: -2
+    },
+    leftSide: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
+    headerContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     }
 });
 
-export default SecondaryHeader;
+export default withNavigation(SecondaryHeader);

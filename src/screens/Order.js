@@ -1,11 +1,21 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Text, ScrollView, TextInput, Dimensions, Picker, KeyboardAvoidingView, SafeAreaView} from 'react-native';
+import {
+    View,
+    StyleSheet,
+    Text,
+    Modal,
+    TextInput,
+    ScrollView,
+    Dimensions,
+    KeyboardAvoidingView,
+    TouchableOpacity
+} from 'react-native';
+import {Picker} from 'native-base';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
 import FlatButton from "../components/FlatButton";
-import {Content} from "native-base";
-
+import TextInputMask from "react-native-text-input-mask";
 const {width} = Dimensions.get('window');
 
 function renderServiceList(services) {
@@ -19,13 +29,24 @@ function renderServiceList(services) {
                     borderColor: colors.BORDER,
                     borderWidth: 2,
                 }}/>
-            )
+        )
     })
 }
 
 
 function Order(props) {
+    let [modalVisible, toggleModalVisible] = useState(false);
     let [currentService, setService] = useState(null);
+    let [backgroundBlur, setBackgroundBlur] = useState(null);
+
+    useEffect(() => {
+        if (modalVisible) {
+            setBackgroundBlur({backgroundColor: ''})
+        } else {
+            setBackgroundBlur(null)
+        }
+    }, [modalVisible]);
+
     let [services, setServices] = useState([
         {
             title: 'Мобильная тревожная кнопка',
@@ -48,13 +69,40 @@ function Order(props) {
     ]);
     let [bottomMargin, setMargin] = useState(20);
 
-    useEffect(() => {}, [bottomMargin]);
+    useEffect(() => {
+    }, [bottomMargin]);
 
     return (
-        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "margin" : null}>
+        <KeyboardAvoidingView
+            style={{...styles.container, ...backgroundBlur}}
+            behavior={Platform.OS === "ios" ? "margin" : null}>
             <SecondaryHeader {...props}/>
-            <Content contentContainerStyle={styles.wrapper}>
-                <View>
+            <ScrollView>
+                <Modal
+                    hardwareAccelerated={true}
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    style={{}}
+                    onRequestClose={() => {
+                        alert("Modal has been closed")
+                    }}
+                >
+                    <View style={{
+                        bottom: 0,
+                        width: '100%',
+                        borderRadius: 20,
+                        position: 'absolute',
+                        backgroundColor: colors.WHITE,
+                        borderColor: '#e6e6e6',
+                        borderWidth: 1,
+                    }}>
+                        <Text style={{fontSize: 40}}>Hello, World</Text>
+                        <TouchableOpacity onPress={() => toggleModalVisible(!modalVisible)}>
+                            <Text>Close modal!</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
                 <PageHeading heading="Подача заявки"/>
                 <Text style={styles.description}>Пожалуйста, заполните необходимые поля и нажмите кнопку «Отправить
                     заявку», после чего наши
@@ -69,21 +117,27 @@ function Order(props) {
                     <Text style={styles.label}>
                         Телефон:
                     </Text>
-                    <TextInput style={styles.input}/>
+                    <TextInputMask
+                        style={styles.input}
+                        mask={"+7 ([000]) [000] [00] [00]"}
+                        keyboardType="numeric"
+                        placeholder="+7 (777) 777 77 77"/>
                 </View>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>
                         Услуга:
                     </Text>
-                    <Picker
-                        selectedValue={currentService}
-                        style={styles.input}
-                        onValueChange={(value) => {
-                            setService(value);
-                        }}
+                    <View style={{height: 30, borderWidth: 1, borderColor: colors.BORDER, borderRadius: 7}}>
+                        <Picker
+                            selectedValue={currentService}
+                            style={styles.input}
+                            onValueChange={(value) => {
+                                setService(value);
+                            }}
                         >
-                        {renderServiceList(services)}
-                    </Picker>
+                            {renderServiceList(services)}
+                        </Picker>
+                    </View>
                 </View>
                 <View style={{...styles.inputContainer, flexDirection: 'column', alignItems: 'flex-start'}}>
                     <Text style={{...styles.label, marginBottom: 13}}>
@@ -91,16 +145,16 @@ function Order(props) {
                     </Text>
                     <TextInput
                         multiline numberOfLines={4}
-                        style={{...styles.input, width: '100%', height: 100, marginBottom: 20}}/>
+                        style={{...styles.input, ...styles.textArea}}/>
                 </View>
-                </View>
-                <View style={{
-                    paddingVertical: 16,
-                    paddingHorizontal: 85,
-                }}>
-                    <FlatButton primary text="Отправить"/>
-                </View>
-            </Content>
+
+            </ScrollView>
+            <View style={{
+                paddingVertical: 16,
+                paddingHorizontal: 85,
+            }}>
+                <FlatButton primary text="Отправить" onPress={() => {}}/>
+            </View>
         </KeyboardAvoidingView>
     );
 }
@@ -108,6 +162,8 @@ function Order(props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        position: 'relative',
+        zIndex: 1,
     },
     description: {
         paddingHorizontal: 16,
@@ -140,6 +196,12 @@ const styles = StyleSheet.create({
     wrapper: {
         justifyContent: 'space-between',
         flex: 1,
+    },
+    textArea: {
+        width: '100%',
+        height: 100,
+        marginBottom: 20,
+        textAlignVertical: 'top'
     }
 });
 

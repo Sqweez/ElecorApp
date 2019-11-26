@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, TouchableNativeFeedback, Image, Text, Dimensions} from 'react-native';
 import { Icon } from "native-base";
 import colors from "../../consts/colors";
-
+import {withNavigation} from 'react-navigation';
 const width = Dimensions.get('window').width;
 
 function HomeLinkItem(props) {
@@ -13,7 +13,7 @@ function HomeLinkItem(props) {
         </View> : null;
 
     return(
-        <TouchableNativeFeedback>
+        <TouchableNativeFeedback onPress={() => props.navigation.push(props.link)}>
             <View style={styles.container}>
                 <View style={styles.linkWrapper}>
                     <Image
@@ -76,4 +76,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default HomeLinkItem;
+export default withNavigation(HomeLinkItem);

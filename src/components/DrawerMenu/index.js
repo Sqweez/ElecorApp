@@ -1,18 +1,15 @@
-import React, {Component} from 'react';
+import React, {Component, useContext} from 'react';
 import {View, StyleSheet, Dimensions, TouchableOpacity, Text, Platform, StatusBar, Image} from 'react-native';
 import colors from "../../consts/colors";
 import {Button, Icon} from "native-base";
+import {withNavigation} from 'react-navigation';
+const {width} = Dimensions.get('window');
+import MessageStoreContext from '../../store/messages';
+import {observer} from "mobx-react";
 
-const { width } = Dimensions.get('window');
-class DrawerMenu extends Component {
-
-    state = {
-        messageCount: 2,
-    };
-
-    navLink = (link, text, isMain = false, icon = null) => {
-        const menuIcon =
-            isMain ?
+const drawNavLink = (props, link, text, isMain = false, icon = null, count = null) => {
+    const menuIcon =
+        isMain ?
             <Icon name={icon} style={{
                 color: colors.GOLD,
                 fontSize: 22,
@@ -20,63 +17,66 @@ class DrawerMenu extends Component {
                 marginTop: 5,
             }}/> : null;
 
-        const messageBadge = text === 'Сообщения'
-            ?
-            <View style={styles.badge}>
+    const messageBadge = (text === 'Сообщения' && count > 0)
+        ?
+        <View style={styles.badge}>
             <Text style={{
                 color: colors.WHITE,
                 textAlign: 'center',
                 fontWeight: 'bold',
                 lineHeight: 20,
-                }}>{this.state.messageCount}</Text>
+            }}>{count}</Text>
+        </View>
+        : null;
+
+    return (
+        <TouchableOpacity
+            style={!isMain ? {...styles.secondaryLink} : {...styles.secondaryLink, ...styles.mainLink}}
+            onPress={() => props.navigation.navigate(link)}>
+
+            {menuIcon}
+
+            <Text
+                style={!isMain ? styles.secondaryLinkText : {...styles.secondaryLinkText, ...styles.mainLinkText}}>{text}</Text>
+
+            {messageBadge}
+        </TouchableOpacity>
+    )
+};
+
+
+function DrawerMenu(props) {
+
+    const messageStore = useContext(MessageStoreContext);
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.menuHeader}>
+                <Text style={{
+                    color: colors.WHITE,
+                    fontSize: 18,
+                    fontWeight: 'bold'
+                }}>
+                    Меню
+                </Text>
+                <Button transparent onPress={() => props.navigation.closeDrawer()}>
+                    <TouchableOpacity onPress={() => props.navigation.closeDrawer()}>
+                        <Icon name="close" style={{
+                            color: colors.WHITE,
+                            marginTop: 3,
+                        }}/>
+                    </TouchableOpacity>
+                </Button>
             </View>
-            : null;
-
-        return (
-            <TouchableOpacity
-                style={!isMain ? {...styles.secondaryLink} : {...styles.secondaryLink, ...styles.mainLink}}
-                onPress={() => this.props.navigation.navigate(link)}>
-
-                {menuIcon}
-
-                <Text style={!isMain ? styles.secondaryLinkText : {...styles.secondaryLinkText, ...styles.mainLinkText}}>{text}</Text>
-
-                {messageBadge}
-            </TouchableOpacity>
-        )
-    };
-    
-    render() {
-        return (
-            <View style={styles.container}>
-                <View style={styles.menuHeader}>
-                    <Text style={{
-                        color: colors.WHITE,
-                        fontSize: 18,
-                        fontWeight: 'bold'
-                    }}>
-                        Меню
-                    </Text>
-                    <Button transparent onPress={() => this.props.navigation.closeDrawer()} >
-                        <TouchableOpacity onPress={() => this.props.navigation.closeDrawer()} >
-                            <Icon name="close" style={{
-                                color: colors.WHITE,
-                                marginTop: 3,
-                                }}/>
-                        </TouchableOpacity>
-                    </Button>
-                </View>
-                {this.navLink('Home', 'Вход/Регистрация', true, 'person')}
-                {this.navLink('Home', 'Сообщения', true, 'chatboxes')}
-                {this.navLink('Service', 'Все услуги')}
-                {this.navLink('Home2', 'Обратная связь')}
-                {this.navLink('Home2', 'Акции и предложения')}
-                {this.navLink('Home2', 'Оплата онлайн')}
-                {this.navLink('Home2', 'Контакты')}
-            </View>
-        );
-    }
-
+            {drawNavLink(props, 'Home', 'Главная страница', true, 'home')}
+            {drawNavLink(props, 'Login', 'Вход/Регистрация', true, 'person')}
+            {drawNavLink(props, 'Messages', 'Сообщения', true, 'chatboxes', messageStore.messageCount)}
+            {drawNavLink(props, 'Service', 'Все услуги')}
+            {drawNavLink(props, 'Contacts', 'Контакты')}
+            {drawNavLink(props, 'Stocks', 'Акции и предложения')}
+            {drawNavLink(props, 'Payment', 'Оплата онлайн')}
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -121,4 +121,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DrawerMenu;
+export default observer(withNavigation(DrawerMenu));

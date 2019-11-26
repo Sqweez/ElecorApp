@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     button: {
         borderRadius: 100,
         paddingTop: 15,
+        overflow: 'hidden',
         paddingBottom: 15,
     },
     buttonText: {

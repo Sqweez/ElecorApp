@@ -6,12 +6,14 @@ const links = [
     {
         name: 'Акции и предложения',
         count: 1,
-        image: require('../../assets/icons/stocks.png')
+        image: require('../../assets/icons/stocks.png'),
+        link: 'Stocks'
     },
     {
         name: 'Оплата онлайн',
         count: null,
-        image: require('../../assets/icons/cart.png')
+        image: require('../../assets/icons/cart.png'),
+        link: 'Payment'
     },
 ];
 
@@ -21,6 +23,7 @@ function renderServices() {
             title={s.name}
             count={s.count}
             image={s.image}
+            link={s.link}
             key={idx}/>
     });
 }

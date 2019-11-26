@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Text, ScrollView} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
 import FlatButton from "../components/FlatButton";
 import {Icon} from "native-base";
+
+let scroll;
 
 
 function renderAdditionalFields(fields) {
@@ -18,12 +20,22 @@ function renderAdditionalFields(fields) {
     })
 }
 
-function renderAdditionalServices(services) {
+function navigateToService(props, title) {
+    scroll.scrollTo({x: 0, y: 0});
+    props.navigation.push("Service", {
+        title
+    });
+}
+
+function renderAdditionalServices(services, props) {
     let serviceList = services.map((s, index) => {
-        return (<View style={styles.serviceContainer} key={index}>
-            <Text style={styles.serviceName}>{s}</Text>
-            <Icon style={styles.icon} type="FontAwesome" name={'chevron-right'}/>
-        </View>)
+        return (
+            <TouchableOpacity key={index} onPress={() => navigateToService(props, s)}>
+                <View style={styles.serviceContainer} >
+                    <Text style={styles.serviceName}>{s}</Text>
+                    <Icon style={styles.icon} type="FontAwesome" name={'chevron-right'}/>
+                </View>
+            </TouchableOpacity>)
     });
 
     return (
@@ -46,8 +58,6 @@ function renderAdditionalServices(services) {
 }
 
 function Service(props) {
-
-    let scroll;
 
     props.navigation.addListener('didBlur', payload => {
         if (scroll) {
@@ -92,7 +102,7 @@ function Service(props) {
                         {description}
                     </Text>
                     {renderAdditionalFields(additionalFields)}
-                    {renderAdditionalServices(additionalServices)}
+                    {renderAdditionalServices(additionalServices, props)}
                 </View>
                 <View style={{
                     paddingVertical: 16,

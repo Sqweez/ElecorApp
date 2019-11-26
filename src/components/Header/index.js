@@ -2,6 +2,7 @@ import {StyleSheet, TouchableNativeFeedback, View, TouchableOpacity} from "react
 import {Button, Icon, Text, Header} from "native-base";
 import React from "react";
 import colors from "../../consts/colors";
+import {withNavigation} from 'react-navigation';
 
 function HeaderBar(props) {
     return (
@@ -23,8 +24,8 @@ function HeaderBar(props) {
                     {props.appName || 'Элекор'}
                 </Text>
             </View>
-            <Button transparent style={styles.button_profile}>
-                <TouchableOpacity>
+            <Button transparent style={styles.button_profile} onPress={() => props.navigation.push('Profile')}>
+                <TouchableOpacity onPress={() => props.navigation.push('Profile')}>
                     <Icon name="person" style={styles.header_button}/>
                 </TouchableOpacity>
             </Button>
@@ -63,4 +64,4 @@ const styles = StyleSheet.create({
 
 
 
-export default HeaderBar;
+export default withNavigation(HeaderBar);
