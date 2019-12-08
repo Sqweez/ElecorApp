@@ -1,34 +1,38 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, StyleSheet, Dimensions, ScrollView, Image, Text} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
-
+import {observer} from 'mobx-react-lite';
+import stocks from "../store/stocks";
 const width = Dimensions.get('window').width;
+import { WebView } from 'react-native-webview';
+import HTML from 'react-native-render-html';
 
 function StockInfo(props) {
+
+    const stockStore = useContext(stocks);
+
+    const {title, body, image} = stockStore.stock;
+
     return (
         <View style={{flex: 1}}>
             <SecondaryHeader text="Назад"/>
             <ScrollView>
-                <PageHeading heading="Внимание, акция!"/>
+                <PageHeading heading={title}/>
                 <View style={{
                     alignItems: 'center'
                 }}>
                     <Image
                         style={styles.image}
-                        source={{uri: 'https://i.ibb.co/rf7rs2Z/banner2.jpg'}}
+                        source={{uri: image}}
                     />
                 </View>
-                <Text style={styles.text}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque dapibus augue non ullamcorper
-                    molestie. Aliquam lorem nisi, hendrerit ut pharetra et, pellentesque vitae mi. Orci varius natoque
-                    penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent mi ipsum, aliquam in
-                    ante ut, vehicula viverra orci. Sed volutpat lacus id placerat varius. Praesent ullamcorper diam
-                    fermentum ante lobortis convallis. Curabitur quis turpis at odio feugiat tristique. Suspendisse
-                    tortor dui, viverra posuere magna sed, viverra porta diam. Sed velit odio, dignissim vitae sapien
-                    interdum, porta cursus neque.
-                </Text>
+                <View style={{
+                    paddingHorizontal: 20,
+                }}>
+                    <HTML html={body} allowedStyles={styles.text}/>
+                </View>
             </ScrollView>
         </View>
     );
@@ -50,4 +54,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default StockInfo;
+export default observer(StockInfo);

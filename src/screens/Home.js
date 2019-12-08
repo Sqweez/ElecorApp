@@ -13,7 +13,7 @@ function Home(props) {
             <HeaderBar appName={'Elecor'} navigation={props.navigation}/>
             <Content>
                 <View style={{flex: 1}}>
-                    <HomeSlides/>
+                    <HomeSlides {...props}/>
                     <Services {...props}/>
                     <HomeLink/>
                 </View>

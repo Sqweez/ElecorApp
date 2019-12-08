@@ -1,27 +1,57 @@
-import React, {useContext, useEffect, useState, useRef} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, Image, ScrollView} from 'react-native';
+import React, {useContext, useState, useEffect} from 'react';
+import {View, StyleSheet, Text, TouchableOpacity, Image, ScrollView, Dimensions} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
-import {Icon, Button} from "native-base";
 import colors from "../consts/colors";
-import MessageStoreContext from "../store/messages";
 import PageHeading from "../components/PageHeading";
 import PageSubHeader from "../components/PageSubHeader";
 import ServiceAccordion from "../components/ServiceAccordion";
 import PaymentItem from "../components/PaymentItem";
-import { NavigationContext } from 'react-navigation';
+import {observer} from "mobx-react-lite";
+import User from "../store/User";
+import Spinner from "react-native-spinkit";
+
+const {width, height} = Dimensions.get('window');
 
 const chatboxOutline = require('../assets/icons/chatbox-outline.png');
+
+function renderServiceAccordion(services) {
+    return services.map((service, key, services) => {
+        const expanded = services.length === 1;
+        return <ServiceAccordion
+            title={service.service_name}
+            data={
+                {
+                    personal_account: service.personal_account,
+                    balance: service.balance,
+                }
+            }
+            key={service.id}
+            expanded={expanded}/>
+    });
+}
+
+function renderPaymentItem(payments) {
+    return payments.map((p) => {
+        return (
+            <PaymentItem
+                key={p.id}
+                data={p}
+            />
+        );
+    })
+}
 
 
 const Profile = (props) => {
 
-    let [messageCount, setMessageCount] = useState(0);
-    const messageContext = useContext(MessageStoreContext);
 
+    const userStore = useContext(User);
 
     useEffect(() => {
-        setMessageCount(messageContext.messageCount)
-    });
+        (async function getData() {
+            await userStore.getClientData();
+        }());
+    }, []);
 
     return (
 
@@ -32,52 +62,48 @@ const Profile = (props) => {
                     onPress={() => props.navigation.navigate('Messages')}
                     style={styles.messageButton}>
                     {
-                        messageCount > 0 &&
+                        userStore.unreadCount > 0 &&
                         <View style={styles.badge}>
                             <Text style={{
                                 textAlign: 'center',
                                 color: colors.WHITE,
                                 lineHeight: 16
                             }}>
-                                {messageCount}
+                                {userStore.unreadCount}
                             </Text>
                         </View>}
                     <Image source={chatboxOutline} style={styles.badgeIcon}/>
                 </TouchableOpacity>
             </SecondaryHeader>
             <View>
-                <PageHeading heading="Катеринин Александр"/>
-                <PageSubHeader title="Мои услуги"/>
-                <ServiceAccordion title="Мобильная тревожная кнопка"/>
-                <ServiceAccordion title="Трезвый водитель"/>
-                <ServiceAccordion title="Охрана дома и квартиры"/>
-                <PageSubHeader title="История платежей"/>
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={!userStore.userLoaded}
+                    color={colors.GOLD}
+                    size={40}
+                    type="Wave"
+                />
             </View>
-            <ScrollView style={{backgroundColor: colors.BORDER}}>
-                <View style={styles.paymentContainer}>
-                    <PaymentItem positive/>
-                    <PaymentItem/>
-                    <PaymentItem/>
-                    <PaymentItem positive/>
-                    <PaymentItem positive/>
-                    <PaymentItem/>
-                    <PaymentItem/>
-                    <PaymentItem positive/>
-                    <PaymentItem/>
-                    <PaymentItem/>
-                    <PaymentItem positive/>
-                    <PaymentItem/>
-                    <PaymentItem/>
-                    <PaymentItem/>
-                    <PaymentItem positive/>
-                    <PaymentItem positive/>
-                    <PaymentItem/>
+            {
+                userStore.userLoaded &&
+                <View>
+                    <PageHeading heading={userStore.user.name}/>
+                    <PageSubHeader title="Мои услуги"/>
+                    {renderServiceAccordion(userStore.user.connections)}
+                    <PageSubHeader title="История платежей"/>
                 </View>
-            </ScrollView>
-
+            }
+            {
+                userStore.userLoaded &&
+                <ScrollView
+                    style={{backgroundColor: colors.BORDER}}
+                    contentContainerStyle={styles.paymentContainer}>
+                    {renderPaymentItem(userStore.user.transactions)}
+                </ScrollView>
+            }
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     header: {
@@ -112,9 +138,14 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginBottom: 16,
         backgroundColor: colors.WHITE,
-        borderRadius: 8,
+        borderRadius: 10,
     },
-    container: {}
+    container: {},
+    spinner: {
+        position: 'absolute',
+        top: height / 2.7,
+        left: width / 2.3,
+    }
 });
 
-export default Profile;
+export default observer(Profile);

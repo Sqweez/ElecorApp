@@ -7,6 +7,17 @@ const width = Dimensions.get('window').width;
 
 const itemSize = Math.floor(width / 3);
 
+function renderTitle(title) {
+    const titles = title.split(' ');
+    return titles.map((t, key) => {
+        return (
+            <Text
+                style={styles.text}
+                key={key}>{t} </Text>
+        );
+    })
+}
+
 function ServiceItem(props) {
     return (
         <TouchableNativeFeedback
@@ -23,7 +34,14 @@ function ServiceItem(props) {
                             source={props.icon}
                             style={styles.image}/>
                     </View>
-                    <Text style={styles.text} textBreakStrategy='simple'>{props.title}</Text>
+                    <View style={styles.textContainer}>
+{/*
+                        {renderTitle(props.title)}
+*/}
+                        <Text
+                            style={styles.text}
+                        >{props.title}</Text>
+                    </View>
                 </View>
             </View>
         </TouchableNativeFeedback>
@@ -46,10 +64,6 @@ const styles = StyleSheet.create({
     },
     text: {
         textAlign: 'center',
-        paddingRight: width * 0.064,
-        paddingLeft: width * 0.064,
-        marginTop: 10,
-        flex: 1.6,
     },
     image: {
         width: 36,
@@ -59,6 +73,16 @@ const styles = StyleSheet.create({
     },
     imageWrapper: {
         flex: 1,
+    },
+    textContainer: {
+        //paddingRight: width * 0.064,
+        //paddingLeft: width * 0.064,
+        paddingHorizontal: 5,
+        marginTop: 10,
+        flex: 1.6,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flexWrap: 'wrap'
     }
 });
 

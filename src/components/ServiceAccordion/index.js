@@ -1,34 +1,24 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Icon} from "native-base";
 import colors from "../../consts/colors";
 
 
-function renderChild(data) {
-    return data.map((m, key) => {
-       return <View style={styles.child} key={key}>
-           <Text style={{color: colors.TEXT, fontSize: 16}}>{m.title}</Text>
-           <Text style={{color: colors.GOLD, fontSize: 16}}>{m.value}</Text>
-       </View>
-    });
+
+function formatAccount(_account) {
+    let arr = _account.replace(/(\d{2})/g, '$1,').split(',');
+    return arr.join(' ');
 }
 
 function ServiceAccordion(props) {
 
     const [expanded, toggleExpanded] = useState(false);
 
-    const {title} = props;
+    useEffect(() => {
+        toggleExpanded(props.expanded);
+    }, []);
 
-    const data = [
-        {
-            title: 'Баланс:',
-            value: '11231 тнг'
-        },
-        {
-            title: 'Лицевой счет:',
-            value: '087/87'
-        }
-    ];
+    const {title, data} = props;
 
     return(
         <View>
@@ -41,7 +31,16 @@ function ServiceAccordion(props) {
             <View>
                 {
                     expanded &&
-                    renderChild(data)
+                    <View>
+                        <View style={styles.child}>
+                            <Text style={{color: colors.TEXT, fontSize: 16}}>Баланс:</Text>
+                            <Text style={{color: colors.GOLD, fontSize: 16}}>{data.balance} тенге</Text>
+                        </View>
+                        <View style={styles.child}>
+                            <Text style={{color: colors.TEXT, fontSize: 16}}>Лицевой счет:</Text>
+                            <Text style={{color: colors.GOLD, fontSize: 16}}>{formatAccount(data.personal_account)}</Text>
+                        </View>
+                    </View>
                 }
             </View>
         </View>

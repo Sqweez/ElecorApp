@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
         color: colors.WHITE,
         textAlign: 'center',
         fontSize: 18,
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        fontWeight: 'bold'
     }
 });
 

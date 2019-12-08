@@ -3,24 +3,37 @@ import {View, StyleSheet, Text, TouchableNativeFeedback, Dimensions} from 'react
 import {Icon} from "native-base";
 import colors from "../../consts/colors";
 const {width} = Dimensions.get('window');
-import PropTypes from 'prop-types';
 
 function MessageItem(props) {
 
 
-    const {title, date, text, isActive} = props.message;
+    const {title, date, body, read} = props.message;
+
+    const {onPress} = props;
 
     return(
-        <Wrapper {...props}>
-            <View style={styles.messageContainer}>
-                <Text style={styles.messageTitle}>{title}</Text>
-                <Text style={styles.messageDate}>{date}</Text>
-                <Text numberOfLines={1} style={styles.messageText}>{text}</Text>
-                <Icon type="FontAwesome"
-                      name={'chevron-right'}
-                      style={{...styles.iconRight, color: !isActive ? colors.DARKGREY : colors.GOLD}} />
+        <TouchableNativeFeedback onPress={onPress}>
+            <View style={{...styles.messageContainer, backgroundColor: read ? colors.BORDER : colors.WHITE}}>
+                <View style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
+                    <Text style={styles.messageTitle}>{title}</Text>
+                    <Text style={styles.messageDate}>{date}</Text>
+                </View>
+                <View style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
+                    <Text numberOfLines={1} style={styles.messageText}>{body}</Text>
+                    <Icon type="FontAwesome"
+                          name={'chevron-right'}
+                          style={{...styles.iconRight, color: read ? colors.DARKGREY : colors.GOLD}} />
+                </View>
             </View>
-        </Wrapper>
+        </TouchableNativeFeedback>
     );
 }
 
@@ -28,7 +41,10 @@ function Wrapper(props) {
     const {message, children, onPress} = props;
     const {isActive} = message;
 
-    const component = isActive ? <TouchableNativeFeedback onPress={onPress}>{children}</TouchableNativeFeedback> : <View onPress={onPress} style={styles.inactiveView}>{children}</View>;
+    const component =
+        isActive ? <TouchableNativeFeedback onPress={onPress}>{children}</TouchableNativeFeedback>
+            :
+        <TouchableNativeFeedback onPress={onPress} style={styles.inactiveView}>{children}</TouchableNativeFeedback>;
 
     return (
         <View>
@@ -40,14 +56,13 @@ function Wrapper(props) {
 
 const styles = StyleSheet.create({
     messageContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        //flexDirection: 'row',
+        //flexWrap: 'wrap',
         paddingHorizontal: 16,
         paddingTop: 16,
         paddingBottom: 10,
     },
     messageTitle: {
-        flexGrow: 3,
         fontSize: 20,
         fontWeight: 'bold',
 

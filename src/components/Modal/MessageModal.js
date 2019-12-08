@@ -2,28 +2,24 @@ import React, {useContext} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import Modal from 'react-native-modal';
 import colors from "../../consts/colors";
-import {MessageModalContext} from "../../store/modal/messageModal";
 
 function MessageModal(props) {
-    const visibility = props.visibility || false;
+    const visibility = props.visibility;
     const onBackdropPress = props.onBackdropPress;
-    const messageContext = useContext(MessageModalContext);
-    const modal = messageContext.modal || {};
-    const {message} = modal;
+    const message = props.message || {};
     return (
         <Modal isVisible={visibility} transparent onBackdropPress={onBackdropPress}>
             <View style={styles.container}>
                 <Text style={styles.heading}>{message.title}</Text>
-                <Text style={styles.text}>{message.text}</Text>
+                <Text style={styles.text}>{message.body}</Text>
                 <View style={styles.bottomContainer}>
-                    <Text style={styles.date}>{message.date}</Text>
+                    <Text style={styles.date}>{message.date || ''}</Text>
                     <TouchableOpacity onPress={onBackdropPress}>
                         <Text style={styles.button}>Закрыть</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </Modal>
-
     );
 }
 

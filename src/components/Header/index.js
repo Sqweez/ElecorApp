@@ -1,10 +1,25 @@
 import {StyleSheet, TouchableNativeFeedback, View, TouchableOpacity} from "react-native";
 import {Button, Icon, Text, Header} from "native-base";
-import React from "react";
+import React, {useContext} from "react";
 import colors from "../../consts/colors";
 import {withNavigation} from 'react-navigation';
+import {observer} from "mobx-react-lite";
+import User from "../../store/User";
 
-function HeaderBar(props) {
+const HeaderBar = observer((props) => {
+
+    const userStore = useContext(User);
+
+    const profileNavigation = () => {
+        const isLogged = userStore.isLoggedIn;
+        console.log(isLogged);
+        if (isLogged) {
+            props.navigation.navigate('Profile');
+        } else {
+            props.navigation.navigate('Login');
+        }
+    };
+
     return (
         <Header transparent>
         <View style={styles.header}>
@@ -24,15 +39,15 @@ function HeaderBar(props) {
                     {props.appName || 'Элекор'}
                 </Text>
             </View>
-            <Button transparent style={styles.button_profile} onPress={() => props.navigation.push('Profile')}>
-                <TouchableOpacity onPress={() => props.navigation.push('Profile')}>
+            <Button transparent style={styles.button_profile} onPress={() => profileNavigation()}>
+                <TouchableOpacity onPress={() => profileNavigation()}>
                     <Icon name="person" style={styles.header_button}/>
                 </TouchableOpacity>
             </Button>
         </View>
         </Header>
     );
-}
+});
 
 
 const styles = StyleSheet.create({

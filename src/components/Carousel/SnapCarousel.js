@@ -1,101 +1,44 @@
-import React, {Component, useState} from 'react';
-import {TouchableOpacity, StyleSheet, Dimensions, ImageBackground} from 'react-native';
+import React, {Component, useState, useContext, useEffect} from 'react';
+import {TouchableOpacity, StyleSheet, Dimensions, ImageBackground, View} from 'react-native';
 import Carousel, {ParallaxImage} from "react-native-snap-carousel";
-import colors from "../../consts/colors";
 import {withNavigation} from 'react-navigation';
+import {observer} from "mobx-react-lite";
+import stocks from "../../store/stocks";
+
 const width = Dimensions.get('window').width;
 
-class MyCarousel extends Component{
+function MyCarousel(props) {
 
-    state = {
-        entries: [
-            {
-                title: 'Beautiful and dramatic Antelope Canyon',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Earlier this morning, NYC',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-            {
-                title: 'White Pocket Sunset',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat ',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Acrocorinth, Greece',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-            {
-                title: 'The lone tree, majestic landscape of New Zealand',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Middle Earth, Germany',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-        ]
+    const stockStore = useContext(stocks);
+
+    const [banners, setBanners] = useState(null);
+
+
+    useEffect(() => {
+        (async () => {
+            await stockStore.getStocks();
+        })();
+    }, []);
+
+    const _onPress = async (id) => {
+        await stockStore.setStock(id);
+        props.navigation.push("StockInfo");
     };
 
-    _onPress = () => {
-      this.props.navigation.push("StockInfo");
-    };
-
-    _renderItem = ({item, index}) => {
-        const imageUrl = typeof item.illustration !== "number" ? {uri: item.illustration} : item.illustration;
+    const _renderItem = ({item, index}) => {
         return (
             <TouchableOpacity
+                onPress={() => _onPress(item.id)}
                 key={index}
-                onPress={this._onPress}
                 style={{flex: 1, alignItems: 'center'}}>
                 <ImageBackground
                     imageStyle={{borderRadius: 10}}
-                    source={imageUrl}
+                    source={{uri: item.illustration}}
                     style={styles.image}/>
             </TouchableOpacity>
 
         );
     };
-
-    render() {
-        return (
-            <Carousel
-                data={this.state.entries}
-                renderItem={this._renderItem}
-                sliderWidth={width}
-                itemWidth={width * 0.9}
-                loop={true}
-                autoplay={true}
-                enableSnap={true}
-                autoplayInterval={3000}
-                loopClonesPerSide={10}
-            />
-        );
-    }
-}
-
-
-function _renderItem({item, index}) {
-    const imageUrl = typeof item.illustration !== "number" ? {uri: item.illustration} : item.illustration;
-    return (
-        <TouchableOpacity
-            key={index}
-            style={{flex: 1, alignItems: 'center'}}>
-            <ImageBackground
-                imageStyle={{borderRadius: 10}}
-                source={imageUrl}
-                style={styles.image}/>
-        </TouchableOpacity>
-
-    );
-}
-
-/*function MyCarousel(props) {
 
     const [entries, setEntries] = useState(
         [
@@ -132,23 +75,34 @@ function _renderItem({item, index}) {
         ]
     );
 
-    return (
-        <Carousel
-            data={entries}
-            renderItem={_renderItem}
-            sliderWidth={width}
-            itemWidth={width * 0.9}
-            loop={true}
-            autoplay={true}
-            enableSnap={true}
-            autoplayInterval={3000}
-            loopClonesPerSide={10}
-        />
+    return (<>
+            {
+                !stockStore.stocksLoaded &&
+                    <View style={styles.preloader} />
+            }
+            {
+                stockStore.stocksLoaded &&
+                <Carousel
+                    data={stockStore.banners}
+                    renderItem={_renderItem}
+                    sliderWidth={width}
+                    itemWidth={width * 0.9}
+                    autoplay={true}
+                    enableSnap={true}
+                    loop={true}
+                    /*loop={true}*/
+                    /*loop={true}
+
+                    */
+                    autoplayInterval={3000}
+                    /*loopClonesPerSide={10}*/
+                />
+            }
+            </>
     );
 
 }
 
-*/
 
 const styles = StyleSheet.create({
     image: {
@@ -158,7 +112,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'transparent',
         resizeMode: 'contain',
+    },
+    preloader: {
+        width: width * 0.9,
+        aspectRatio: 2,
     }
 });
 
-export default withNavigation(MyCarousel);
+export default observer(MyCarousel);

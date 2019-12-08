@@ -1,11 +1,15 @@
-import React, {useState} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text,Image, ScrollView, Platform, KeyboardAvoidingView, TextInput, Dimensions, TouchableOpacity} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
 import {Linking} from 'react-native';
 import FlatButton from "../components/FlatButton";
-
+import User from "../store/User";
+import {getContacts, sendFeedback} from "../api/client";
+import SimpleToast from "react-native-simple-toast";
+import { WebView } from 'react-native-webview';
+import Spinner from "react-native-spinkit";
 const { width, height } = Dimensions.get('window');
 
 const mapImage = require('../assets/images/map.jpg');
@@ -46,7 +50,7 @@ function PhoneItem(props) {
 function renderAboutItem(aboutCompany) {
     return aboutCompany.map((m, key) => {
         return (
-            <AboutItem title={m.title} value={m.value} key={key}/>
+            <AboutItem title={m.key} value={m.value} key={key}/>
         );
     })
 }
@@ -54,38 +58,47 @@ function renderAboutItem(aboutCompany) {
 function renderPhoneItem(phoneItems) {
     return phoneItems.map((p, key) => {
         return (
-            <PhoneItem title={p.title} value={p.value} key={key}/>
+            <PhoneItem title={p.key} value={p.value} key={key}/>
         );
     });
 }
 
 function Contacts(props) {
 
-    const [aboutCompany, setAboutCompany] = useState([
-        {
-            title: 'Адрес:',
-            value: 'Республика Казахстан, г. Павлодар, ул Академика Чокина, 42, офис 81, 82'
-        },
-        {
-            title: 'График работы:',
-            value: 'ПН-ПТ с 9:00 до 18:00. 13:00-14:00 обед\nСБ-ВС выходной'
-        }
-    ]);
+    const userStore = useContext(User);
 
-    const [companyPhones, setCompanyPhones] = useState([
-        {
-            title: 'Офис',
-            value: '+7 7182 20 98 29'
-        },
-        {
-            title: 'Менеджер',
-            value: '+7 775 204 67 94'
-        },
-        {
-            title: 'Дежурный пульт',
-            value: '+7 747 807 50 87'
-        },
-    ]);
+    const [aboutCompany, setAboutCompany] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+
+    const [companyPhones, setCompanyPhones] = useState([]);
+
+    const [feedbackText, setFeedbackText] = useState('');
+
+    const [title, setTitle] = useState('');
+
+    const [map, setMap] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            const contacts = await getContacts();
+            setTitle(contacts.title);
+            setAboutCompany(JSON.parse(contacts.information));
+            setCompanyPhones(JSON.parse(contacts.phones));
+            setMap(contacts.map);
+            setLoading(false);
+        })()
+    }, []);
+
+    const _sendFeedback = async () => {
+        const feedback = {
+            feedback: feedbackText,
+            client_id: userStore.user_id
+        };
+        await sendFeedback(feedback);
+        setFeedbackText('');
+        SimpleToast.show("Ваше сообщение было доставлено! Менеджер компании свяжется с вами в ближайшее время!", 5000);
+    };
 
     return(
         <KeyboardAvoidingView
@@ -93,8 +106,18 @@ function Contacts(props) {
             style={{flex: 1}}
             behavior={Platform.OS === "ios" ? "margin" : null}>
             <SecondaryHeader text={'Контакты'}/>
+            <View>
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={loading}
+                    color={colors.GOLD}
+                    size={40}
+                    type="Wave"
+                />
+            </View>
+            {!loading &&
             <ScrollView>
-                <PageHeading heading='ОА "ЭЛЕКОР"'/>
+                <PageHeading heading={title}/>
                 <View style={styles.container}>
                     {renderAboutItem(aboutCompany)}
                     <Text style={{color: colors.DARKGREY, fontSize: 16, marginBottom: 8}}>Телефоны:</Text>
@@ -118,7 +141,12 @@ function Contacts(props) {
                         fontSize: 16
                     }}>Если у вас есть вопрос, напишите нам:</Text>
                     <View>
-                        <TextInput multiline numberOfLines={4} style={styles.textArea}/>
+                        <TextInput
+                            multiline
+                            value={feedbackText}
+                            onChangeText={(text) => setFeedbackText(text)}
+                            numberOfLines={4}
+                            style={styles.textArea}/>
                     </View>
                     <View style={{
                         flexDirection: 'row',
@@ -131,7 +159,10 @@ function Contacts(props) {
                         <View style={{
                             flex: 1
                         }}>
-                            <FlatButton text="Отправить" primary/>
+                            <FlatButton
+                                onPress={_sendFeedback}
+                                text="Отправить"
+                                primary/>
                         </View>
                     </View>
                 </View>
@@ -152,16 +183,12 @@ function Contacts(props) {
                     marginBottom: 0,
                     backgroundColor: 'gold'
                 }}>
-                    <Image
-                        style={{
-                            width: null,
-                            flex: 1,
-                            height: null,
-                            resizeMode: 'cover'
-                        }}
-                        source={mapImage}/>
+                    <WebView
+                        source={{uri: map}}
+                    />
                 </View>
             </ScrollView>
+            }
         </KeyboardAvoidingView>
     );
 }
@@ -180,6 +207,11 @@ const styles = StyleSheet.create({
         color: colors.TEXT,
         marginBottom: 20,
         textAlignVertical: 'top'
+    },
+    spinner: {
+        position: 'absolute',
+        top: height / 2.7,
+        left: width / 2.3,
     }
 });
 

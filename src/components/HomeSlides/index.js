@@ -3,10 +3,10 @@ import React from 'react';
 import MyCarousel from "../Carousel/SnapCarousel";
 const width = Dimensions.get('window').width;
 
-function HomeSlides() {
+function HomeSlides(props) {
     return (
         <View style={styles.container}>
-            <MyCarousel />
+            <MyCarousel {...props}/>
         </View>
     );
 }

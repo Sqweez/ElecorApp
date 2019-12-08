@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet, TouchableOpacity, ScrollView, Image, Text} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import colors from "../consts/colors";
+import {observer} from "mobx-react-lite";
+import stocks from "../store/stocks";
 
+/*function StockItem(props) {
 
-function StockItem(props) {
     return (
         <View
             style={styles.stockContainer}>
@@ -15,25 +17,52 @@ function StockItem(props) {
                 source={{uri: 'https://i.ibb.co/QXdYRMV/banner1.jpg'}}/>
         </View>
     );
-}
+}*/
 
 function Stocks(props) {
+
+    const stockStore = useContext(stocks);
+
+    useEffect(() => {
+        (async () => {
+            if (!stockStore.stocksLoaded) {
+                await stockStore.getStocks();
+            }
+        })();
+    });
+
+    const _onPress = async (id) => {
+        await stockStore.setStock(id);
+        props.navigation.push("StockInfo");
+    };
+
+    const renderStocks = () => {
+      return stockStore.stocks.map(stock => {
+          return (
+              <View
+                  key={stock.id}
+                  style={styles.stockContainer}>
+                  <TouchableOpacity
+                      style={styles.overlay}
+                      onPress={() => _onPress(stock.id)}/>
+                  <Text style={styles.stockTitle}>{stock.title}</Text>
+                  <Image
+                      style={styles.imageStock}
+                      source={{uri: stock.image}}/>
+              </View>
+          )
+      });
+    };
+
     return (
         <View style={{flex: 1}}>
             <SecondaryHeader text="Акции"/>
             <ScrollView
                 style={{backgroundColor: colors.BORDER}}
             >
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
-                <StockItem title="Привет!" onPress={() => props.navigation.push("StockInfo")}/>
+                {
+                    stockStore.stocksLoaded && renderStocks()
+                }
             </ScrollView>
         </View>
     );
@@ -73,4 +102,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Stocks;
+export default observer(Stocks);

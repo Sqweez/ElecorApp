@@ -1,6 +1,5 @@
-import {observable, computed, action} from 'mobx'
+import {observable, action} from 'mobx'
 import React, {createContext} from 'react';
-import MessageStoreContext from "../messages";
 class MessageModal {
     @observable modal = {
         show: false,

@@ -1,11 +1,10 @@
-import React, {Component, useContext} from 'react';
+import React, {useContext} from 'react';
 import {View, StyleSheet, Dimensions, TouchableOpacity, Text, Platform, StatusBar, Image} from 'react-native';
 import colors from "../../consts/colors";
 import {Button, Icon} from "native-base";
-import {withNavigation} from 'react-navigation';
 const {width} = Dimensions.get('window');
-import MessageStoreContext from '../../store/messages';
-import {observer} from "mobx-react";
+import {observer} from "mobx-react-lite";
+import User from "../../store/User";
 
 const drawNavLink = (props, link, text, isMain = false, icon = null, count = null) => {
     const menuIcon =
@@ -47,7 +46,7 @@ const drawNavLink = (props, link, text, isMain = false, icon = null, count = nul
 
 function DrawerMenu(props) {
 
-    const messageStore = useContext(MessageStoreContext);
+    const userStore = useContext(User);
 
     return (
         <View style={styles.container}>
@@ -68,9 +67,9 @@ function DrawerMenu(props) {
                     </TouchableOpacity>
                 </Button>
             </View>
+            {userStore.isLoggedIn ? drawNavLink(props, 'Profile', 'Профиль', true, 'person') : drawNavLink(props, 'Login', 'Вход', true, 'person')}
+            {drawNavLink(props, 'Messages', 'Сообщения', true, 'chatboxes', userStore.unreadCount)}
             {drawNavLink(props, 'Home', 'Главная страница', true, 'home')}
-            {drawNavLink(props, 'Login', 'Вход/Регистрация', true, 'person')}
-            {drawNavLink(props, 'Messages', 'Сообщения', true, 'chatboxes', messageStore.messageCount)}
             {drawNavLink(props, 'Service', 'Все услуги')}
             {drawNavLink(props, 'Contacts', 'Контакты')}
             {drawNavLink(props, 'Stocks', 'Акции и предложения')}
@@ -121,4 +120,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default observer(withNavigation(DrawerMenu));
+export default observer(DrawerMenu);

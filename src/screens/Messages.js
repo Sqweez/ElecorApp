@@ -4,41 +4,52 @@ import SecondaryHeader from "../components/SecondaryHeader";
 import MessageItem from "../components/MessageItem";
 import MessageModal from "../components/Modal/MessageModal";
 import {observer} from 'mobx-react';
-import MessageStoreContext from "../store/messages";
-import {MessageModalContext} from "../store/modal/messageModal";
+import User from "../store/User";
 
-function renderMessages(messages, onPress, setMessage) {
 
-    const modalStore = useContext(MessageModalContext);
-
-    return messages.map((m, index) => {
-        return (
-            <MessageItem message={m} key={index} onPress={() => modalStore.showModal(m)}/>
-        );
-    })
-}
-
-function onMessageClose(messageStore, modalStore) {
-    const {id} = modalStore.modal.message;
-    messageStore.checkAsRead(id);
-    modalStore.closeModal();
-}
-
-function Messages(props) {
+function Messages() {
 
     let [modalVisibility, setVisibility] = useState(false);
 
-    const messageStore = useContext(MessageStoreContext);
+    let [message, setMessage] = useState(null);
 
-    const modalStore = useContext(MessageModalContext);
+    const userStore = useContext(User);
+
+    const onMessageClose = () => {
+        setVisibility(false);
+        setMessage(null);
+    };
+
+    const showModal = (message) => {
+        setMessage(message);
+        if (!message.read) {
+            userStore.markAsRead(message.id);
+        }
+        setVisibility(true);
+    };
+
+    const renderMessageItems = (messages) => {
+        return messages.map((m) => {
+            return (
+                <MessageItem
+                    key={m.id}
+                    message={m}
+                    onPress={() => showModal(m)}
+                />
+            );
+        })
+    };
 
     return(
         <View>
-            <MessageModal visibility={modalStore.modal.show} onBackdropPress={() => onMessageClose(messageStore, modalStore)}/>
+            <MessageModal
+                visibility={modalVisibility}
+                message={message}
+                onBackdropPress={onMessageClose}/>
             <SecondaryHeader text="Сообщения" />
             <ScrollView>
                 <View style={styles.container}>
-                    {renderMessages(messageStore.allMessages, () => setVisibility(!modalVisibility))}
+                    {renderMessageItems(userStore.messages)}
                 </View>
             </ScrollView>
         </View>
