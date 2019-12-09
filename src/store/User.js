@@ -1,8 +1,6 @@
 import {observable, action, computed} from "mobx";
 import {createContext} from 'react';
-import axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
-import API from '../consts/api';
 import {setPush, getClientData, getMessages, markAsRead} from '../api/client/index';
 import storage_keys from "../consts/storage_keys";
 
@@ -37,6 +35,8 @@ class UserStore {
         this.setUser(client);
         const push_token = await AsyncStorage.getItem(storage_keys.PUSH_TOKEN);
         if (!client.push_token || push_token !== client.push_token) {
+            console.log(push_token);
+            console.log(this.user_id);
             await setPush(this.user_id, push_token);
         }
     }

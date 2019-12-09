@@ -1,5 +1,4 @@
 import Home from "../screens/Home";
-import Home2 from "../screens/Home2";
 import Service from "../screens/Service";
 import Order from "../screens/Order";
 import Contacts from "../screens/Contacts";
@@ -9,10 +8,10 @@ import Stocks from "../screens/Stocks";
 import Payment from "../screens/Payment";
 import StockInfo from "../screens/StockInfo";
 import Login from "../screens/Login";
+import Services from "../screens/Services";
 
 export default {
     Home: Home,
-    Home2: Home2,
     Service: Service,
     Order: Order,
     Contacts: Contacts,
@@ -21,5 +20,6 @@ export default {
     Stocks: Stocks,
     Payment: Payment,
     StockInfo: StockInfo,
-    Login: Login
+    Login: Login,
+    Services: Services
 };

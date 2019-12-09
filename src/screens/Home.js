@@ -15,7 +15,7 @@ function Home(props) {
                 <View style={{flex: 1}}>
                     <HomeSlides {...props}/>
                     <Services {...props}/>
-                    <HomeLink/>
+                    <HomeLink />
                 </View>
                 <View style={{marginVertical: 20, paddingHorizontal: 85}}>
                     <FlatButton

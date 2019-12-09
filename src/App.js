@@ -12,7 +12,7 @@ function App() {
     const userState = useContext(User);
 
     const initOneSignal = () => {
-        OneSignal.init(CONFIG.ONE_SIGNAL_APP_ID, {kOSSettingsKeyAutoPrompt : true});
+        OneSignal.init(CONFIG.ONE_SIGNAL_APP_ID, {kOSSettingsKeyAutoPrompt: true});
         OneSignal.addEventListener('ids', onIds);
         OneSignal.addEventListener('received', onReceive);
         OneSignal.addEventListener('opened', onOpen);
@@ -23,12 +23,16 @@ function App() {
     };
 
     const onReceive = async () => {
-        await userState.getMessages();
+        if (userState.isLoggedIn) {
+            await userState.getMessages();
+        }
     };
 
     const onOpen = async () => {
-        const messages = userState.messages;
-        await userState.markAsRead(messages[0].id);
+        if (userState.isLoggedIn) {
+            const messages = userState.messages;
+            await userState.markAsRead(messages[0].id);
+        }
     };
 
     useEffect(() => {
@@ -38,6 +42,7 @@ function App() {
             if (user_id) {
                 await userState.setUserId(user_id);
                 await userState.getMessages();
+                await userState.getClientData();
             }
         })();
     }, []);

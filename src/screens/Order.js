@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
     View,
     StyleSheet,
@@ -10,20 +10,28 @@ import {
     KeyboardAvoidingView,
     TouchableOpacity
 } from 'react-native';
+import {observer} from "mobx-react-lite";
 import {Picker} from 'native-base';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
 import FlatButton from "../components/FlatButton";
 import TextInputMask from "react-native-text-input-mask";
+import services from "../store/services";
+import User from "../store/User";
+import storage_keys from "../consts/storage_keys";
+
 const {width} = Dimensions.get('window');
+import AsyncStorage from "@react-native-community/async-storage";
+import {createOrder} from "../api/services";
+import SimpleToast from "react-native-simple-toast";
 
 function renderServiceList(services) {
     return services.map((s, index) => {
         return (
             <Picker.Item
                 label={s.title}
-                value={s.title}
+                value={s.id}
                 key={index}
                 style={{
                     borderColor: colors.BORDER,
@@ -35,9 +43,35 @@ function renderServiceList(services) {
 
 
 function Order(props) {
-    let [modalVisible, toggleModalVisible] = useState(false);
-    let [currentService, setService] = useState(null);
-    let [backgroundBlur, setBackgroundBlur] = useState(null);
+
+    const serviceStore = useContext(services);
+
+    const userStore = useContext(User);
+
+    const [name, setName] = useState('');
+
+    const [phone, setPhone] = useState('');
+
+    const [comment, setComment] = useState('');
+
+    useEffect(() => {
+        if (userStore.isLoggedIn) {
+            setName(userStore.user.name);
+            let phone = userStore.user.phone;
+            phone = '+7' + phone.substr(1);
+            setPhone(phone);
+        }
+    }, []);
+
+
+    const [modalVisible, toggleModalVisible] = useState(false);
+    const [service, setService] = useState(null);
+    const [backgroundBlur, setBackgroundBlur] = useState(null);
+
+    useEffect(() => {
+        const service_id = props.navigation.getParam('service_id') || serviceStore.mainServices[0].id;
+        setService(service_id);
+    }, []);
 
     useEffect(() => {
         if (modalVisible) {
@@ -47,27 +81,32 @@ function Order(props) {
         }
     }, [modalVisible]);
 
-    let [services, setServices] = useState([
-        {
-            title: 'Мобильная тревожная кнопка',
-        },
-        {
-            title: 'Охрана для бизнеса',
-        },
-        {
-            title: 'Охрана домов и квартир',
-        },
-        {
-            title: 'Системы видеонаблюдения',
-        },
-        {
-            title: 'Пост частной охраны',
-        },
-        {
-            title: 'Противопожарная безопасность',
-        },
-    ]);
-    let [bottomMargin, setMargin] = useState(20);
+    const [bottomMargin, setMargin] = useState(20);
+
+    const _sendOrder = async () => {
+        console.log(1);
+        const order = {
+            client_id: userStore.user_id || null,
+            client_name: name,
+            service_id: service,
+            client_comment: comment,
+            phone: phone,
+            push_token: await AsyncStorage.getItem(storage_keys.PUSH_TOKEN) || null,
+        };
+        
+        console.log(order);
+
+        if (!order.client_name || !order.phone && !order.service_id) {
+            SimpleToast.show("Необходимо заполнить поля перед отправкой!");
+            return ;
+        }
+
+        await createOrder(order);
+
+        SimpleToast.show("Ваше заявка была создана! Менеджер компании свяжется с вами в ближайшее время!", 5000);
+
+        props.navigation.navigate("Home");
+    };
 
     useEffect(() => {
     }, [bottomMargin]);
@@ -111,13 +150,16 @@ function Order(props) {
                     <Text style={styles.label}>
                         Ваше имя:
                     </Text>
-                    <TextInput style={styles.input} placeholder={'Имя'}/>
+                    <TextInput style={styles.input} placeholder={'Имя'} value={name}
+                               onChangeText={text => setName(text)}/>
                 </View>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>
                         Телефон:
                     </Text>
                     <TextInputMask
+                        value={phone}
+                        onChangeText={(text) => setPhone(text)}
                         style={styles.input}
                         mask={"+7 ([000]) [000] [00] [00]"}
                         keyboardType="numeric"
@@ -129,13 +171,13 @@ function Order(props) {
                     </Text>
                     <View style={{height: 30, borderWidth: 1, borderColor: colors.BORDER, borderRadius: 7}}>
                         <Picker
-                            selectedValue={currentService}
+                            selectedValue={service}
                             style={styles.input}
                             onValueChange={(value) => {
                                 setService(value);
                             }}
                         >
-                            {renderServiceList(services)}
+                            {renderServiceList(serviceStore.mainServices)}
                         </Picker>
                     </View>
                 </View>
@@ -144,6 +186,8 @@ function Order(props) {
                         Комментарий:
                     </Text>
                     <TextInput
+                        value={comment}
+                        onChangeText={(text) => setComment(text)}
                         multiline numberOfLines={4}
                         style={{...styles.input, ...styles.textArea}}/>
                 </View>
@@ -153,7 +197,7 @@ function Order(props) {
                 paddingVertical: 16,
                 paddingHorizontal: 85,
             }}>
-                <FlatButton primary text="Отправить" onPress={() => {}}/>
+                <FlatButton primary text="Отправить" onPress={_sendOrder}/>
             </View>
         </KeyboardAvoidingView>
     );
@@ -205,4 +249,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Order;
+export default observer(Order);

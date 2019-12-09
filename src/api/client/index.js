@@ -2,9 +2,10 @@ import axios from 'axios';
 import API from "../../consts/api";
 
 export async function setPush(id, push_token) {
-    await axios.patch(`${API.SET_PUSH}/${id}`, {
+    const response = await axios.patch(`${API.SET_PUSH}/${id}`, {
         push_token
-    })
+    });
+    console.log(response);
 }
 
 export async function getClientData(id) {
@@ -19,7 +20,7 @@ export async function getMessages(id) {
 
 export async function markAsRead(id) {
     await axios.patch(`${API.MESSAGES}/${id}`, {
-        read: true
+        read: 1
     })
 }
 

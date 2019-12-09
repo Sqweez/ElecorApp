@@ -1,53 +1,47 @@
-import React from 'react';
+import React, {useEffect, useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
 import ServiceItem from "./service-item";
+import {observer} from "mobx-react-lite";
+import services from "../../store/services";
 
-function renderServices() {
-    return serviceList.map((s, idx) => {
-        return (
-        <ServiceItem
-            title={s.title}
-            icon={s.icon}
-            key={idx}/>
-        );
-    });
-}
+function Services(props) {
 
-function Services() {
+    const serviceStore = useContext(services);
+
+    useEffect(() => {
+        (async () => {
+            await serviceStore.getServices();
+        })();
+    }, []);
+
+    /*const _navigateToService = async id => {
+        await serviceStore.setService(id);
+        console.log('kemeke');
+        props.navigation.navigate('Service');
+    };*/
+
+    const renderServices = () => {
+        return serviceStore.mainServices.map((s, idx) => {
+            return (
+                <ServiceItem
+                    /*onPress={() => _navigateToService(s.id)}*/
+                    id={s.id}
+                    title={s.title}
+                    icon={s.icon}
+                    key={idx}/>
+            );
+        });
+    };
+
     return (
         <View style={styles.container}>
-            {renderServices()}
+            {
+                serviceStore.services.length > 0 &&
+                renderServices()
+            }
         </View>
     );
 }
-
-const serviceList = [
-    {
-        title: 'Мобильная тревожная кнопка',
-        icon: require('../../assets/icons/mtk.png')
-    },
-    {
-        title: 'Охрана для бизнеса',
-        icon: require('../../assets/icons/business.png')
-    },
-    {
-        title: 'Охрана домов и квартир',
-        icon: require('../../assets/icons/home.png')
-    },
-    {
-        title: 'Системы видеонаблюдения',
-        icon: require('../../assets/icons/camera.png')
-    },
-    {
-        title: 'Пост частной охраны',
-        icon: require('../../assets/icons/security.png')
-    },
-    {
-        title: 'Противопожарная безопасность',
-        icon: require('../../assets/icons/firewatch.png')
-    },
-
-];
 
 const styles = StyleSheet.create({
     container: {
@@ -59,4 +53,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default Services;
+export default observer(Services);

@@ -1,11 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
 import FlatButton from "../components/FlatButton";
 import {Icon} from "native-base";
-
+import {observer} from "mobx-react-lite";
+import HTML from "react-native-render-html";
+import services from "../store/services";
 let scroll;
 
 
@@ -13,7 +15,7 @@ function renderAdditionalFields(fields) {
     return fields.map((f, index) => {
         return (
             <View style={styles.additionalField} key={index}>
-                <Text style={styles.additionalTitle}>{f.title}</Text>
+                <Text style={styles.additionalTitle}>{f.key}</Text>
                 <Text style={styles.additionalValue}>{f.value}</Text>
             </View>
         );
@@ -27,12 +29,12 @@ function navigateToService(props, title) {
     });
 }
 
-function renderAdditionalServices(services, props) {
+function renderAdditionalServices(services, onPress) {
     let serviceList = services.map((s, index) => {
         return (
-            <TouchableOpacity key={index} onPress={() => navigateToService(props, s)}>
+            <TouchableOpacity key={index} onPress={onPress}>
                 <View style={styles.serviceContainer} >
-                    <Text style={styles.serviceName}>{s}</Text>
+                    <Text style={styles.serviceName}>{s.title}</Text>
                     <Icon style={styles.icon} type="FontAwesome" name={'chevron-right'}/>
                 </View>
             </TouchableOpacity>)
@@ -40,7 +42,9 @@ function renderAdditionalServices(services, props) {
 
     return (
         <View>
-            <View style={{
+            {
+                services.length > 0 &&
+                <View style={{
                 marginTop: 16,
                 backgroundColor: colors.BORDER,
                 paddingVertical: 12,
@@ -51,7 +55,7 @@ function renderAdditionalServices(services, props) {
                     fontSize: 15,
                 }}>Дополнительные услуги
                 </Text>
-            </View>
+            </View> }
             {serviceList}
         </View>);
 
@@ -59,57 +63,75 @@ function renderAdditionalServices(services, props) {
 
 function Service(props) {
 
+    const serviceStore = useContext(services);
+
     props.navigation.addListener('didBlur', payload => {
         if (scroll) {
             scroll.scrollTo({x: 0, y: 0});
         }
     });
 
-    let serviceTitle = props.navigation.getParam('title') || "Услуга";
+    const _navigateToService = async (id) => {
+        await serviceStore.setService(id);
+        //await props.navigation.push('Service');
+    };
 
-    let [description, setDescription] = useState(`Приложение для смартфона, позволяющее вызвать личную охрану в любое время. Количество вызовов в месяц не ограниченно, ложные вызовы штрафом не облагаются. Скорость прибытия группы быстрого реагирования до 4 минут. Причиной для использования тревожной кнопки может быть внештатная ситуация, например:\n• Вы стали жертвой преступления, нарушения общественного порядка;\n• Плохое самочувствие;\n• Нужно в безопасности добраться куда-то;\n• Возникли проблемы с охраной, персоналом какого-либо заведения;\n• ДТП, застряли/потерялись по дороге;`);
+    const renderAdditionalServices = () => {
+        let serviceList = serviceStore.additionalServices.map((s, index) => {
+            return (
+                <TouchableOpacity key={index} onPress={() => _navigateToService(s.id)}>
+                    <View style={styles.serviceContainer} >
+                        <Text style={styles.serviceName}>{s.title}</Text>
+                        <Icon style={styles.icon} type="FontAwesome" name={'chevron-right'}/>
+                    </View>
+                </TouchableOpacity>)
+        });
 
-    let [additionalFields, setAdditional] = useState(
-        [
-            {
-                title: 'Стоимость подключения',
-                value: '3500 тг'
-            },
-            {
-                title: 'Абонентская плата в месяц',
-                value: '2000 тг/м'
-            },
-        ]
-    );
+        return (
+            <View>
+                {
+                    serviceStore.additionalServices.length > 0 &&
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: colors.BORDER,
+                        paddingVertical: 12,
+                        paddingHorizontal: 16,
+                    }}>
+                        <Text style={{
+                            color: colors.DARKGREY,
+                            fontSize: 15,
+                        }}>Дополнительные услуги
+                        </Text>
+                    </View> }
+                {serviceList}
+            </View>);
+    }
 
-    let [additionalServices, setAdditionalServices] = useState(
-        [
-            'Сопровождение охраной',
-            'Автосопровождение',
-            'Трезвый водитель',
-            'Сопровождение финансовых операций',
-            'Кратковременный пост охраны',
-        ]
-    );
 
     return (
         <View style={styles.container}>
             <SecondaryHeader {...props}/>
             <ScrollView contentContainerStyle={styles.wrapper} ref={c => {scroll = c}}>
                 <View>
-                    <PageHeading heading={serviceTitle}/>
-                    <Text style={styles.description}>
-                        {description}
-                    </Text>
-                    {renderAdditionalFields(additionalFields)}
-                    {renderAdditionalServices(additionalServices, props)}
+                    <PageHeading heading={serviceStore.service.title}/>
+                    <View style={styles.description}>
+                        <HTML html={serviceStore.service.description}/>
+                    </View>
+                    {renderAdditionalFields(serviceStore.service.additional_information)}
+                    {renderAdditionalServices(serviceStore.additionalServices)}
                 </View>
                 <View style={{
                     paddingVertical: 16,
                     paddingHorizontal: 85,
                     marginBottom: 120,
                 }}>
-                    <FlatButton primary text={'Подключить'} onPress={() => props.navigation.navigate("Order")}/>
+                    {
+                        serviceStore.service.main_id === null &&
+                        <FlatButton primary text={'Подключить'} onPress={() => props.navigation.navigate("Order", {
+                            service_id: serviceStore.service.id
+                        })}/>
+                    }
+
                 </View>
             </ScrollView>
         </View>
@@ -159,4 +181,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Service;
+export default observer(Service);

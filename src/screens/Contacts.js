@@ -91,6 +91,7 @@ function Contacts(props) {
     }, []);
 
     const _sendFeedback = async () => {
+        console.log(1);
         const feedback = {
             feedback: feedbackText,
             client_id: userStore.user_id

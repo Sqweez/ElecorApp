@@ -1,43 +1,34 @@
 import React, {useContext} from 'react';
-import {Dimensions, View, TouchableOpacity, Text, Image, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import {Dimensions, View, Text, Image, StyleSheet, TouchableNativeFeedback} from 'react-native';
 import colors from "../../consts/colors";
-import App from "../../App";
 import {withNavigation} from 'react-navigation';
 const width = Dimensions.get('window').width;
+import {observer} from "mobx-react-lite";
+import services from "../../store/services";
 
 const itemSize = Math.floor(width / 3);
 
-function renderTitle(title) {
-    const titles = title.split(' ');
-    return titles.map((t, key) => {
-        return (
-            <Text
-                style={styles.text}
-                key={key}>{t} </Text>
-        );
-    })
-}
-
 function ServiceItem(props) {
+
+    const serviceStore = useContext(services);
+
+    const navigate = async (id) => {
+      await serviceStore.setService(id);
+      props.navigation.navigate("Service");
+    };
+
     return (
         <TouchableNativeFeedback
-            onPress={() => {
-                props.navigation.navigate('Service', {
-                    title: props.title
-                })
-            }}
+            onPress={() => navigate(props.id)}
         >
             <View style={{...styles.container}}>
                 <View style={styles.wrapper}>
                     <View style={styles.imageWrapper}>
                         <Image
-                            source={props.icon}
+                            source={{uri: props.icon}}
                             style={styles.image}/>
                     </View>
                     <View style={styles.textContainer}>
-{/*
-                        {renderTitle(props.title)}
-*/}
                         <Text
                             style={styles.text}
                         >{props.title}</Text>
@@ -75,15 +66,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     textContainer: {
-        //paddingRight: width * 0.064,
-        //paddingLeft: width * 0.064,
         paddingHorizontal: 5,
         marginTop: 10,
         flex: 1.6,
         flexDirection: 'row',
         justifyContent: 'center',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        textAlign: 'center'
     }
 });
 
-export default withNavigation(ServiceItem);
+export default withNavigation(observer(ServiceItem));

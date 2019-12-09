@@ -70,7 +70,7 @@ function DrawerMenu(props) {
             {userStore.isLoggedIn ? drawNavLink(props, 'Profile', 'Профиль', true, 'person') : drawNavLink(props, 'Login', 'Вход', true, 'person')}
             {drawNavLink(props, 'Messages', 'Сообщения', true, 'chatboxes', userStore.unreadCount)}
             {drawNavLink(props, 'Home', 'Главная страница', true, 'home')}
-            {drawNavLink(props, 'Service', 'Все услуги')}
+            {drawNavLink(props, 'Services', 'Все услуги')}
             {drawNavLink(props, 'Contacts', 'Контакты')}
             {drawNavLink(props, 'Stocks', 'Акции и предложения')}
             {drawNavLink(props, 'Payment', 'Оплата онлайн')}
