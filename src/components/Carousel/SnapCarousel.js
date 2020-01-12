@@ -4,6 +4,7 @@ import Carousel, {ParallaxImage} from "react-native-snap-carousel";
 import {withNavigation} from 'react-navigation';
 import {observer} from "mobx-react-lite";
 import stocks from "../../store/stocks";
+import services from "../../store/services";
 
 const width = Dimensions.get('window').width;
 
@@ -11,24 +12,31 @@ function MyCarousel(props) {
 
     const stockStore = useContext(stocks);
 
-    const [banners, setBanners] = useState(null);
-
+    const serviceStore = useContext(services);
 
     useEffect(() => {
         (async () => {
-            await stockStore.getStocks();
+            // await stockStore.getStocks();
         })();
     }, []);
 
-    const _onPress = async (id) => {
-        await stockStore.setStock(id);
-        props.navigation.push("StockInfo");
+    const _onPress = async (banner) => {
+        let routeName = "";
+        if (banner.service_id === null) {
+            await stockStore.setStock(banner.id);
+            routeName = "StockInfo";
+        }
+        else {
+            await serviceStore.setService(banner.service_id);
+            routeName = "Service";
+        }
+        props.navigation.navigate(routeName);
     };
 
     const _renderItem = ({item, index}) => {
         return (
             <TouchableOpacity
-                onPress={() => _onPress(item.id)}
+                onPress={() => _onPress(item)}
                 key={index}
                 style={{flex: 1, alignItems: 'center'}}>
                 <ImageBackground
@@ -39,41 +47,6 @@ function MyCarousel(props) {
 
         );
     };
-
-    const [entries, setEntries] = useState(
-        [
-            {
-                title: 'Beautiful and dramatic Antelope Canyon',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Earlier this morning, NYC',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-            {
-                title: 'White Pocket Sunset',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat ',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Acrocorinth, Greece',
-                subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-            {
-                title: 'The lone tree, majestic landscape of New Zealand',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/QXdYRMV/banner1.jpg',
-            },
-            {
-                title: 'Middle Earth, Germany',
-                subtitle: 'Lorem ipsum dolor sit amet',
-                illustration: 'https://i.ibb.co/rf7rs2Z/banner2.jpg',
-            },
-        ]
-    );
 
     return (<>
             {
@@ -90,12 +63,7 @@ function MyCarousel(props) {
                     autoplay={true}
                     enableSnap={true}
                     loop={true}
-                    /*loop={true}*/
-                    /*loop={true}
-
-                    */
                     autoplayInterval={3000}
-                    /*loopClonesPerSide={10}*/
                 />
             }
             </>

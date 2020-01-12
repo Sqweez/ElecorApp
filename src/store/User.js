@@ -1,7 +1,7 @@
-import {observable, action, computed} from "mobx";
+import {action, computed, observable} from "mobx";
 import {createContext} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {setPush, getClientData, getMessages, markAsRead} from '../api/client/index';
+import {getClientData, getMessages, markAsRead, setPush} from '../api/client/index';
 import storage_keys from "../consts/storage_keys";
 
 
@@ -12,8 +12,18 @@ class UserStore {
 
     @observable messages = [];
 
+    @observable accounts = [];
+
+    @observable currentStep = 0;
+
+    @observable connectedServices = [];
+    
+    @observable error = null;
+
     @action setUser(payload) {
-        this.user = payload;
+        let _payload = payload;
+        _payload.transactions = _payload.transactions.filter(p => p);
+        this.user = _payload;
     }
 
     @action setUserId(payload) {
@@ -29,16 +39,44 @@ class UserStore {
         this.setMessages(messages);
     }
 
+    @action setConnectedServices(payload) {
+        const services = [];
+        payload.forEach(p => {
+           const i = services.findIndex(s => s.service_name === p.service_name);
+           if (i === -1) {
+               services.push({
+                   service_name: p.service_name,
+                   id: p.id,
+                   accounts: [p.personal_account]
+               })
+           }
+           else {
+               services[i].accounts.push(p.personal_account);
+           }
+        });
+
+        this.connectedServices = services;
+    }
+
     @action
     async getClientData() {
-        const client = await getClientData(this.user_id);
+        const response = await getClientData(this.user_id);
+        if (response.error) {
+            this.error = response.message;
+            return response.status;
+        }
+
+        const client = response.data;
+
+
+
         this.setUser(client);
+        this.setConnectedServices(client.connections);
         const push_token = await AsyncStorage.getItem(storage_keys.PUSH_TOKEN);
         if (!client.push_token || push_token !== client.push_token) {
-            console.log(push_token);
-            console.log(this.user_id);
             await setPush(this.user_id, push_token);
         }
+        return true;
     }
 
     @action async markAsRead(id) {
@@ -49,6 +87,27 @@ class UserStore {
             }
             return m;
         })
+    }
+
+    @action resetStep() {
+        this.currentStep = 0;
+    }
+
+    @action async logout() {
+        await AsyncStorage.removeItem(storage_keys.USER_ID);
+        this.user = null;
+        this.user_id = null;
+        this.messages = [];
+
+        this.accounts = [];
+
+        this.currentStep = 0;
+
+        this.connectedServices = [];
+    }
+
+    @action incrementStep() {
+        this.currentStep++;
     }
 
     @computed get isLoggedIn() {
@@ -62,6 +121,23 @@ class UserStore {
     @computed get unreadCount() {
         return this.messages.filter(m => !m.read).length;
     }
+
+    @computed get uniqueServices() {
+        return [... new Set(this.connectedServices.map(c => c.service_name))];
+    }
+
+    @computed get hasConnections() {
+        return this.connectedServices.length > 0;
+    }
+
+    @computed get transactions() {
+        return this.user.transactions.slice(0, 10 * (this.currentStep + 1));
+    }
+
+    @computed get hasUnloadedTransactions() {
+        return this.transactions.length < this.user.transactions.length;
+    }
+
 
 }
 

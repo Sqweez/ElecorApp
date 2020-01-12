@@ -56,8 +56,8 @@ function Wrapper(props) {
 
 const styles = StyleSheet.create({
     messageContainer: {
-        //flexDirection: 'row',
-        //flexWrap: 'wrap',
+        borderBottomWidth: 1,
+        borderBottomColor: colors.BORDER,
         paddingHorizontal: 16,
         paddingTop: 16,
         paddingBottom: 10,

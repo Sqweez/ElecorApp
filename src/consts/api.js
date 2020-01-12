@@ -1,8 +1,10 @@
-/*
 const BASE_URL = 'http://192.168.0.104:8001/api/';
+
+
+/*
+const BASE_URL = 'https://elecor.ariesdev.kz/api/';
 */
 
-const BASE_URL = 'https://elecor.ariesdev.kz/api/';
 
 export default {
     GET_SMS: `${BASE_URL}mobile/auth`,
@@ -14,5 +16,7 @@ export default {
     CONTACTS: `${BASE_URL}mobile/contacts`,
     GET_STOCKS: `${BASE_URL}stocks?mobile=true`,
     GET_SERVICES: `${BASE_URL}mobile/services?mobile=true`,
-    CREATE_ORDER: `${BASE_URL}orders`
+    CREATE_ORDER: `${BASE_URL}orders`,
+    MAKE_PAY: `${BASE_URL}mobile/pay`,
+    WELCOME: `${BASE_URL}mobile/welcome`
 }

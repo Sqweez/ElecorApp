@@ -13,10 +13,18 @@ import axios from "axios";
 import API from "../consts/api";
 import STORAGE_KEYS from '../consts/storage_keys';
 const {width} = Dimensions.get('window');
+import { StackActions  } from 'react-navigation';
+import {getWelcomeMessage} from "../api/client";
 
 function Login(props) {
 
     const user = useContext(User);
+
+    useEffect(() => {
+        if (user.isLoggedIn) {
+            props.navigation.navigate('Home');
+        }
+    }, []);
 
     const [phone, setPhone] = useState(null);
     const [userId, setId] = useState(null);
@@ -54,13 +62,13 @@ function Login(props) {
             user.setUserId(response.data.id);
             AsyncStorage.setItem(STORAGE_KEYS.USER_ID, response.data.id.toString());
             SimpleToast.show("Вы были успешно авторизованы");
-            props.navigation.navigate('Home');
+            await getWelcomeMessage(response.data.id);
+            props.navigation.replace("Profile");
         }
         else {
             SimpleToast.show('Пароли не совпадают!');
         }
     };
-
 
     return (
         <View style={{flex: 1}}>
@@ -110,7 +118,7 @@ function Login(props) {
                 <View style={styles.buttonContainer}>
                     <FlatButton
                         onPress={() => !code ? sendSMS() : checkCode()}
-                        text={!code ? 'Получить пароль' : 'Войти'}
+                        text={!code ? 'Получить код' : 'Войти'}
                         primary/>
                 </View>
             </View>

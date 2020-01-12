@@ -54,9 +54,10 @@ const styles = StyleSheet.create({
         padding: 16,
         width: '100%',
         borderRadius: 10,
-        height: 110,
+        height: 150,
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        marginBottom: -15
     },
     overlay: {
         borderRadius: 10,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,.6)'
     },
     imageStock: {
-        width: null, height: null, resizeMode: 'cover', flex: 1,
+        width: null, height: null, resizeMode: 'cover', flex: 1, borderRadius: 10,
     },
     stockTitle: {
         color: colors.WHITE,
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        top: 40,
+        top: 60,
         right: 30,
         color: colors.GOLD,
         zIndex: 1,

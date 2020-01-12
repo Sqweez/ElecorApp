@@ -55,13 +55,6 @@ function renderAboutItem(aboutCompany) {
     })
 }
 
-function renderPhoneItem(phoneItems) {
-    return phoneItems.map((p, key) => {
-        return (
-            <PhoneItem title={p.key} value={p.value} key={key}/>
-        );
-    });
-}
 
 function Contacts(props) {
 
@@ -78,6 +71,17 @@ function Contacts(props) {
     const [title, setTitle] = useState('');
 
     const [map, setMap] = useState('');
+
+    const renderPhoneItem = (phoneItems) => {
+        return phoneItems.map((p, key) => {
+            if (p.key === 'Дежурная часть' && !userStore.isLoggedIn) {
+                return null;
+            }
+                return (
+                    <PhoneItem title={p.key} value={p.value} key={key}/>
+                );
+        });
+    };
 
     useEffect(() => {
         (async () => {
@@ -100,6 +104,9 @@ function Contacts(props) {
         setFeedbackText('');
         SimpleToast.show("Ваше сообщение было доставлено! Менеджер компании свяжется с вами в ближайшее время!", 5000);
     };
+
+    const _renderFeedback = async () => {
+    }
 
     return(
         <KeyboardAvoidingView
@@ -124,6 +131,7 @@ function Contacts(props) {
                     <Text style={{color: colors.DARKGREY, fontSize: 16, marginBottom: 8}}>Телефоны:</Text>
                     {renderPhoneItem(companyPhones)}
                 </View>
+                { userStore.isLoggedIn &&
                 <View style={{
                     backgroundColor: colors.BORDER,
                     paddingVertical: 12,
@@ -135,7 +143,8 @@ function Contacts(props) {
                         fontSize: 16,
                     }}>Обратная связь
                     </Text>
-                </View>
+                </View>}
+                {userStore.isLoggedIn &&
                 <View style={styles.container}>
                     <Text style={{
                         color: colors.DARKGREY,
@@ -156,7 +165,7 @@ function Contacts(props) {
                         <Text style={{
                             flex: 1,
                             color: colors.DARKGREY,
-                        }}>Текст про время ответа менеджера</Text>
+                        }}>Мы свяжемся с вами в ближайшее рабочее время</Text>
                         <View style={{
                             flex: 1
                         }}>
@@ -166,7 +175,7 @@ function Contacts(props) {
                                 primary/>
                         </View>
                     </View>
-                </View>
+                </View>}
                 <View style={{
                     backgroundColor: colors.BORDER,
                     paddingVertical: 12,

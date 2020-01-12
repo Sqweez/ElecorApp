@@ -21,5 +21,5 @@ export default {
     Payment: Payment,
     StockInfo: StockInfo,
     Login: Login,
-    Services: Services
+    Services: Services,
 };

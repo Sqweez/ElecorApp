@@ -1,16 +1,28 @@
 import axios from 'axios';
 import API from "../../consts/api";
+import error from "../../consts/error";
 
 export async function setPush(id, push_token) {
-    const response = await axios.patch(`${API.SET_PUSH}/${id}`, {
+    await axios.patch(`${API.SET_PUSH}/${id}`, {
         push_token
     });
-    console.log(response);
+}
+
+
+export async function getWelcomeMessage(id) {
+    await axios.get(`${API.WELCOME}/${id}`);
 }
 
 export async function getClientData(id) {
-    const response = await axios.get(`${API.GET_CLIENT_INFO}/${id}`);
-    return response.data;
+    try {
+        return await axios.get(`${API.GET_CLIENT_INFO}/${id}`);
+    } catch (e) {
+        return {
+            error: true,
+            status: e.response.status,
+            message: error[e.response.status],
+        }
+    }
 }
 
 export async function getMessages(id) {
@@ -31,5 +43,10 @@ export async function sendFeedback(feedback) {
 
 export async function getContacts() {
     const {data} = await axios.get(`${API.CONTACTS}`)
+    return data;
+}
+
+export async function makePay(paymentData) {
+    const {data} = await axios.post(`${API.MAKE_PAY}`, paymentData);
     return data;
 }

@@ -1,5 +1,15 @@
-import React, {useContext, useState, useEffect} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, Image, ScrollView, Dimensions} from 'react-native';
+import React, {useContext, useState, useEffect, useCallback} from 'react';
+import {
+    View,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    Image,
+    RefreshControl,
+    Dimensions,
+    FlatList,
+    ActivityIndicator
+} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import colors from "../consts/colors";
 import PageHeading from "../components/PageHeading";
@@ -9,6 +19,7 @@ import PaymentItem from "../components/PaymentItem";
 import {observer} from "mobx-react-lite";
 import User from "../store/User";
 import Spinner from "react-native-spinkit";
+import {ScrollView} from "react-navigation";
 
 const {width, height} = Dimensions.get('window');
 
@@ -30,22 +41,26 @@ function renderServiceAccordion(services) {
     });
 }
 
-function renderPaymentItem(payments) {
-    return payments.map((p) => {
-        return (
-            <PaymentItem
-                key={p.id}
-                data={p}
-            />
-        );
-    })
-}
-
-
 const Profile = (props) => {
 
 
     const userStore = useContext(User);
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [isLoading, setLoading] = useState(false);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        userStore.resetStep();
+
+        (async () => {
+            await userStore.getClientData();
+            await userStore.getMessages();
+            setRefreshing(false);
+        })();
+
+    }, [refreshing]);
 
     useEffect(() => {
         (async function getData() {
@@ -53,11 +68,30 @@ const Profile = (props) => {
         }());
     }, []);
 
+    const _navHome = () => {
+        props.navigation.goBack()
+    };
+    
+    const loadMore = async () => {
+        setLoading(true);
+        await userStore.incrementStep();
+        setLoading(false);
+    };
+
+    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        return layoutMeasurement.height + contentOffset.y
+            >= contentSize.height - 50;
+    };
+
     return (
-
-        <View style={{flex: 1}}>
-
-            <SecondaryHeader text="Личный кабинет" style={styles.header}>
+        <View style={{
+            flex: 1,
+            backgroundColor: colors.BORDER
+        }}>
+            <SecondaryHeader
+                onPress={() => _navHome()}
+                text="Личный кабинет"
+                style={styles.header}>
                 <TouchableOpacity
                     onPress={() => props.navigation.navigate('Messages')}
                     style={styles.messageButton}>
@@ -75,7 +109,18 @@ const Profile = (props) => {
                     <Image source={chatboxOutline} style={styles.badgeIcon}/>
                 </TouchableOpacity>
             </SecondaryHeader>
-            <View>
+        <ScrollView
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+            }
+            onScroll={async ({nativeEvent}) => {
+                if (isCloseToBottom(nativeEvent) && userStore.hasUnloadedTransactions) {
+                    await loadMore();
+                }
+            }}
+            contentContainerStyle={{backgroundColor: colors.BORDER, width: '100%'}}>
+
+            <View style={{flex: 1}}>
                 <Spinner
                     style={styles.spinner}
                     isVisible={!userStore.userLoaded}
@@ -95,12 +140,18 @@ const Profile = (props) => {
             }
             {
                 userStore.userLoaded &&
-                <ScrollView
-                    style={{backgroundColor: colors.BORDER}}
-                    contentContainerStyle={styles.paymentContainer}>
-                    {renderPaymentItem(userStore.user.transactions)}
-                </ScrollView>
+                <View>
+                    <FlatList
+                        style={{...styles.paymentContainer}}
+                        data={userStore.transactions}
+                        renderItem={({ item }) => <PaymentItem data={item} />}
+                        keyExtractor={item => item.id.toString()} />
+                </View>
             }
+            {
+                isLoading &&
+                <ActivityIndicator animating size="large" color={colors.GOLD}/>}
+        </ScrollView>
         </View>
     );
 };
@@ -136,6 +187,7 @@ const styles = StyleSheet.create({
     },
     paymentContainer: {
         marginHorizontal: 16,
+        marginTop: 5,
         marginBottom: 16,
         backgroundColor: colors.WHITE,
         borderRadius: 10,

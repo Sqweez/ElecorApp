@@ -10,6 +10,10 @@ class StocksStore {
 
     @observable stocksLoaded = false;
 
+    @computed get _stocks() {
+        return this.stocks.filter(s => s.service_id === null);
+    }
+
     @action async getStocks() {
         const stocks = await getStocks();
         this.setStocks(stocks);
@@ -20,11 +24,16 @@ class StocksStore {
         this.stocksLoaded = true;
     }
 
+    @computed get stocksCount() {
+        return this._stocks.length;
+    }
+
     @computed get banners() {
         return this.stocks.map(s => {
             return {
                 id: s.id,
-                illustration: s.image
+                illustration: s.image,
+                service_id: s.service_id
             }
         });
     }

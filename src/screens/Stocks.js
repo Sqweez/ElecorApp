@@ -37,7 +37,7 @@ function Stocks(props) {
     };
 
     const renderStocks = () => {
-      return stockStore.stocks.map(stock => {
+      return stockStore._stocks.map(stock => {
           return (
               <View
                   key={stock.id}
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,.6)'
     },
     imageStock: {
-        width: null, height: null, resizeMode: 'cover', flex: 1,
+        width: null, height: null, resizeMode: 'cover', flex: 1, borderRadius: 10,
     },
     stockTitle: {
         color: colors.WHITE,

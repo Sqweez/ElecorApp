@@ -1,23 +1,34 @@
-import React, {useContext} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {View, StyleSheet, Text, TouchableOpacity, BackHandler} from 'react-native';
 import Modal from 'react-native-modal';
 import colors from "../../consts/colors";
-
 function MessageModal(props) {
+
     const visibility = props.visibility;
     const onBackdropPress = props.onBackdropPress;
     const message = props.message || {};
+
+    /*useEffect(() => {
+        console.log(1);
+        BackHandler.addEventListener('hardwareBackPress', function() {
+            console.log(2);
+            if (visibility) {
+                onBackdropPress();
+            }
+        });
+    }, [visibility]);*/
+
     return (
         <Modal isVisible={visibility} transparent onBackdropPress={onBackdropPress}>
             <View style={styles.container}>
                 <Text style={styles.heading}>{message.title}</Text>
                 <Text style={styles.text}>{message.body}</Text>
-                <View style={styles.bottomContainer}>
+                <TouchableOpacity style={styles.bottomContainer} onPress={onBackdropPress}>
                     <Text style={styles.date}>{message.date || ''}</Text>
                     <TouchableOpacity onPress={onBackdropPress}>
                         <Text style={styles.button}>Закрыть</Text>
                     </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
             </View>
         </Modal>
     );

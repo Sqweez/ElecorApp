@@ -10,7 +10,7 @@ function Services(props) {
 
     useEffect(() => {
         (async () => {
-            await serviceStore.getServices();
+            //await serviceStore.getServices();
         })();
     }, []);
 

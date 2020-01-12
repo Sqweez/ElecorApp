@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
 import colors from "../../consts/colors";
 import {Icon} from "native-base";
@@ -10,10 +10,15 @@ function SecondaryHeader(props) {
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <View style={styles.leftSide}>
-                        <TouchableOpacity onPress={() => props.navigation.goBack()}>
+                        <TouchableOpacity
+                            style={styles.leftSide}
+                            onPress={() =>
+                        {props.onPress ? props.onPress() : props.navigation.goBack()}
+                        }>
                             <Icon name="arrow-back" style={styles.icon}/>
+                            <Text style={styles.text}>{props.text || 'Назад'}</Text>
                         </TouchableOpacity>
-                        <Text style={styles.text}>{props.text || 'Назад'}</Text>
+
                     </View>
                     {children}
                 </View>

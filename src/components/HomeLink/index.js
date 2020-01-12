@@ -1,40 +1,40 @@
-import React from 'react';
+import React, {useState, useContext} from 'react';
 import {View} from 'react-native';
 import HomeLinkItem from "./HomeLinkItem";
-
-const links = [
-    {
-        name: 'Акции и предложения',
-        count: 1,
-        image: require('../../assets/icons/stocks.png'),
-        link: 'Stocks'
-    },
-    {
-        name: 'Оплата онлайн',
-        count: null,
-        image: require('../../assets/icons/cart.png'),
-        link: 'Payment'
-    },
-];
-
-function renderServices() {
-    return links.map((s, idx) => {
-        return <HomeLinkItem
-            title={s.name}
-            count={s.count}
-            image={s.image}
-            link={s.link}
-            key={idx}/>
-    });
-}
+import {observer} from "mobx-react-lite";
+import User from "../../store/User";
+import stocks from "../../store/stocks";
 
 function HomeLink() {
+
+    const userStore = useContext(User);
+    const stockStore = useContext(stocks);
+
     return (
         <View>
-            {renderServices()}
+            <HomeLinkItem
+                title="Акции и предложения"
+                count={stockStore.stocksCount}
+                image={require('../../assets/icons/stocks.png')}
+                link={'Stocks'} />
+            {
+                userStore.isLoggedIn && userStore.hasConnections ?
+                <HomeLinkItem
+                    title="Оплата онлайн"
+                    count={null}
+                    image={require('../../assets/icons/cart.png')}
+                    link={'Payment'} />
+                    : !userStore.isLoggedIn ?
+                    <HomeLinkItem
+                        title="Оплата онлайн"
+                        count={null}
+                        image={require('../../assets/icons/cart.png')}
+                        link={'Login'} /> : null
+            }
+
         </View>
     );
 }
 
 
-export default HomeLink;
+export default observer(HomeLink);

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {View, StyleSheet, Modal, Text, ScrollView} from 'react-native';
+import {View, StyleSheet, BackHandler, ScrollView} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import MessageItem from "../components/MessageItem";
 import MessageModal from "../components/Modal/MessageModal";
@@ -15,6 +15,14 @@ function Messages() {
 
     const userStore = useContext(User);
 
+    useEffect(() => {
+        BackHandler.addEventListener("hardwareBackPress", function () {
+            console.log(1);
+            if (modalVisibility === true) {
+                onMessageClose();
+            }
+        })
+    }, []);
     const onMessageClose = () => {
         setVisibility(false);
         setMessage(null);
@@ -58,7 +66,7 @@ function Messages() {
 
 const styles = StyleSheet.create({
     container: {
-        paddingBottom: 20
+        paddingBottom: 20,
     },
 });
 

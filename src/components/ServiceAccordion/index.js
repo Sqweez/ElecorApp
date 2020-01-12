@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Icon} from "native-base";
 import colors from "../../consts/colors";
+import {color} from "react-native-reanimated";
 
 
 
@@ -53,7 +54,10 @@ const styles = StyleSheet.create({
         paddingVertical: 13,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: colors.WHITE,
+        borderBottomWidth: 1,
+        borderColor: colors.BORDER,
     },
     icon: {
         fontSize: 20,
@@ -64,6 +68,7 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     child: {
+        backgroundColor: colors.WHITE,
         paddingHorizontal: 32,
         flexDirection: 'row',
         paddingVertical: 13,
