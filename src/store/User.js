@@ -1,7 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {createContext} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {getClientData, getMessages, markAsRead, setPush} from '../api/client/index';
+import {deleteMessage, getClientData, getMessages, markAsRead, setPush} from '../api/client/index';
 import storage_keys from "../consts/storage_keys";
 
 
@@ -17,6 +17,8 @@ class UserStore {
     @observable currentStep = 0;
 
     @observable connectedServices = [];
+
+    @observable connections = [];
     
     @observable error = null;
 
@@ -41,12 +43,14 @@ class UserStore {
 
     @action setConnectedServices(payload) {
         const services = [];
+        this.connections = payload;
         payload.forEach(p => {
            const i = services.findIndex(s => s.service_name === p.service_name);
            if (i === -1) {
                services.push({
                    service_name: p.service_name,
                    id: p.id,
+                   balance: p.balance < 0 ? (p.balance - -1).toString() : '0',
                    accounts: [p.personal_account]
                })
            }
@@ -77,6 +81,11 @@ class UserStore {
             await setPush(this.user_id, push_token);
         }
         return true;
+    }
+
+    @action async deleteMessage(id) {
+        this.messages = this.messages.filter(m => m.id !== id);
+        await deleteMessage(id);
     }
 
     @action async markAsRead(id) {

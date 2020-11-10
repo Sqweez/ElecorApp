@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View} from 'react-native';
 import HomeLinkItem from "./HomeLinkItem";
 import {observer} from "mobx-react-lite";
@@ -9,6 +9,10 @@ function HomeLink() {
 
     const userStore = useContext(User);
     const stockStore = useContext(stocks);
+
+    useEffect(async () => {
+        await stockStore.setReadStocks();
+    }, []);
 
     return (
         <View>

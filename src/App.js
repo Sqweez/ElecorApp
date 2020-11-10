@@ -14,7 +14,6 @@ import SimpleToast from "react-native-simple-toast";
 import colors from "./consts/colors";
 import Spinner from "react-native-spinkit";
 import NetInfo from "@react-native-community/netinfo";
-
 const {width, height} = Dimensions.get('window');
 
 function App() {

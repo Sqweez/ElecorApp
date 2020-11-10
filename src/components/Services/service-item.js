@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Dimensions, View, Text, Image, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import {Dimensions, View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import colors from "../../consts/colors";
 import {withNavigation} from 'react-navigation';
 const width = Dimensions.get('window').width;
@@ -18,7 +18,7 @@ function ServiceItem(props) {
     };
 
     return (
-        <TouchableNativeFeedback
+        <TouchableOpacity
             onPress={() => navigate(props.id)}
         >
             <View style={{...styles.container}}>
@@ -35,7 +35,7 @@ function ServiceItem(props) {
                     </View>
                 </View>
             </View>
-        </TouchableNativeFeedback>
+        </TouchableOpacity>
     );
 }
 

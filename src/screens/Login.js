@@ -1,5 +1,5 @@
 import React, {useContext, useState, useEffect} from 'react';
-import {View, StyleSheet, Text, Dimensions, TextInput} from 'react-native';
+import {View, StyleSheet, Text, Dimensions, KeyboardAvoidingView} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import TextInputMask from "react-native-text-input-mask";
@@ -26,7 +26,7 @@ function Login(props) {
         }
     }, []);
 
-    const [phone, setPhone] = useState(null);
+    const [phone, setPhone] = useState('8');
     const [userId, setId] = useState(null);
     const [code, setCode] = useState(null);
     const [userCode, setUserCode] = useState(null);
@@ -43,7 +43,7 @@ function Login(props) {
             return null;
         }
         setPhone(_phone);
-        SimpleToast.show('Пароль был отправлен в виде SMS на указанный вами номер', 5000);
+        SimpleToast.show('Пароль был отправлен в виде SMS на указанный вами номер');
         setCode(data.code);
         setId(data.client_id);
     };
@@ -71,7 +71,7 @@ function Login(props) {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'}>
             <SecondaryHeader text="Авторизация"/>
             <PageHeading heading="Вход"/>
             <View style={{
@@ -85,11 +85,12 @@ function Login(props) {
                             <View style={styles.inputWrapper}>
                                 <TextInputMask
                                     keyboardType="numeric"
+                                    value={phone}
                                     onChangeText={(e) => setPhone(e)}
                                     style={{
                                         fontSize: 16
                                     }}
-                                    mask={"8-([000])-[000]-[00]-[00]"}/>
+                                    mask={"8([000])[000]-[00]-[00]"}/>
                             </View>
                         </View>
                     }
@@ -110,9 +111,9 @@ function Login(props) {
                         </View>
                     }
                     <Text style={styles.textHelper}>
-                        Если Вы являетесь клиентом ОА “Elecor” и не можете войти, обратитесь по телефонам: +8 7182 20 98
+                        Если Вы являетесь клиентом ОА “ELECOR” и не можете войти, обратитесь по телефонам: +7 7182 20 98
                         29
-                        (офис) +8 775 204 67 94 (менеджер)
+                        (офис) +7 775 204 67 94 (менеджер)
                     </Text>
                 </View>
                 <View style={styles.buttonContainer}>
@@ -122,7 +123,7 @@ function Login(props) {
                         primary/>
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -139,6 +140,8 @@ const styles = StyleSheet.create({
         borderColor: colors.GOLD,
         height: 40,
         width: width * 0.7,
+        flex: 1,
+        justifyContent: 'center'
     },
     inputLabel: {
         fontSize: 16,

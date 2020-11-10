@@ -1,18 +1,20 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Text, TouchableNativeFeedback, Dimensions} from 'react-native';
+import React from 'react';
+import {View, StyleSheet, Text, TouchableOpacity, Dimensions} from 'react-native';
 import {Icon} from "native-base";
 import colors from "../../consts/colors";
+import Swipeable from 'react-native-swipeable';
+
 const {width} = Dimensions.get('window');
 
 function MessageItem(props) {
 
 
-    const {title, date, body, read} = props.message;
+    const {title, date, body, read, id} = props.message;
 
     const {onPress} = props;
 
-    return(
-        <TouchableNativeFeedback onPress={onPress}>
+    const button = (
+        <TouchableOpacity onPress={onPress}>
             <View style={{...styles.messageContainer, backgroundColor: read ? colors.BORDER : colors.WHITE}}>
                 <View style={{
                     flex: 1,
@@ -30,29 +32,38 @@ function MessageItem(props) {
                     <Text numberOfLines={1} style={styles.messageText}>{body}</Text>
                     <Icon type="FontAwesome"
                           name={'chevron-right'}
-                          style={{...styles.iconRight, color: read ? colors.DARKGREY : colors.GOLD}} />
+                          style={{...styles.iconRight, color: read ? colors.DARKGREY : colors.GOLD}}/>
                 </View>
             </View>
-        </TouchableNativeFeedback>
+        </TouchableOpacity>
     );
-}
 
-function Wrapper(props) {
-    const {message, children, onPress} = props;
-    const {isActive} = message;
-
-    const component =
-        isActive ? <TouchableNativeFeedback onPress={onPress}>{children}</TouchableNativeFeedback>
-            :
-        <TouchableNativeFeedback onPress={onPress} style={styles.inactiveView}>{children}</TouchableNativeFeedback>;
+    const rightButtons = [
+        <TouchableOpacity
+            onPress={props.onSwipe}
+            style={{
+            backgroundColor: '#f44336',
+            width: Dimensions.get('window').width / 5,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+        }}>
+            <Icon
+                type={"Ionicons"}
+                  name={'trash'}
+                  style={{
+                      color: colors.WHITE,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                  }}/>
+        </TouchableOpacity>,
+    ];
 
     return (
-        <View>
-            {component}
-        </View>
+        <Swipeable children={button} rightButtons={rightButtons} />
     );
-
 }
+
 
 const styles = StyleSheet.create({
     messageContainer: {

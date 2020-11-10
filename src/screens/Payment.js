@@ -1,9 +1,9 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, Text, ScrollView, TextInput, CheckBox, Dimensions} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, TextInput, Dimensions, KeyboardAvoidingView} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
 import colors from "../consts/colors";
-import {Picker} from 'native-base';
+import {Picker, CheckBox} from 'native-base';
 import TextInputMask from "react-native-text-input-mask";
 import FlatButton from "../components/FlatButton";
 import User from "../store/User";
@@ -22,6 +22,8 @@ function Payment() {
 
     const userStore = useContext(User);
 
+    const connections = userStore.connections;
+
     const [chosenService, setChosenService] = useState(userStore.connectedServices[0].service_name || '');
 
     const [accounts, setAccounts] = useState(userStore.connectedServices[0].accounts || []);
@@ -32,7 +34,7 @@ function Payment() {
 
     const [name, setName] = useState(userStore.user.name);
 
-    const [price, setPrice] = useState(0);
+    const [price, setPrice] = useState(userStore.connectedServices[0].balance);
 
     const [paymentUrl, setPaymentUrl] = useState('');
 
@@ -74,6 +76,12 @@ function Payment() {
         setAccount(_accounts[0])
     };
 
+    useEffect(() => {
+        const index = connections.findIndex(c => c.personal_account === chosenAccount);
+        const balance = connections[index].balance;
+        setPrice(balance < 0 ? (balance * -1).toString()  : '0');
+    }, [chosenAccount]);
+
     const _onPress = async () => {
         if (!name) {
             SimpleToast.show('Введите имя, чтобы продолжить');
@@ -104,7 +112,7 @@ function Payment() {
     };
     
     return (
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'}>
             <SecondaryHeader/>
             <ScrollView>
                 {
@@ -123,17 +131,19 @@ function Payment() {
 
                         <View style={{...styles.justifyBetween}}>
                             <Text style={styles.label}>Услуга:</Text>
-                            <View
-                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7}}>
+                            <View style={{flex: 2}}>
                                 <Picker
+                                    iosHeader="Выберите услугу"
                                     mode="dropdown"
+                                    headerBackButtonText="Назад"
+
                                     selectedValue={chosenService}
-                                    style={{flex: 1}}
+                                    style={{borderWidth: 1, borderColor: colors.BORDER, alignContent: 'center'}}
                                     onValueChange={(value) => _onServiceChange(value)}
                                 >
                                     {renderServiceList()}
                                 </Picker>
-                            </View>
+                                </View>
                         </View>
 
 
@@ -144,11 +154,14 @@ function Payment() {
                                 style={styles.label}
                             >Ваше имя:</Text>
                             <View
-                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7}}>
+                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7, justifyContent: 'center', padd
+                                : 10}}>
                                 <TextInput
                                     style={{
-                                        fontSize: 16
+                                        fontSize: 16,
+                                        marginLeft: 16
                                     }}
+                                
                                     value={userStore.user.name}
                                     selection={{start: 0, end: 0}}
                                     placeholder="Ваше имя"/>
@@ -156,29 +169,31 @@ function Payment() {
                         </View>
                         <View style={{...styles.justifyBetween}}>
                             <Text style={styles.label}>Лицевой счет:</Text>
-                            <View
-                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7}}>
+                                <View style={{flex: 2}}>
                                 <Picker
                                     mode="dropdown"
+                                    iosHeader="Выберите лиц. счет"
+                                    headerBackButtonText="Назад"
                                     selectedValue={chosenAccount}
-                                    style={{flex: 1}}
+                                    style={{width: '100%', borderWidth: 1, borderColor: colors.BORDER, alignContent: 'center'}}
                                     onValueChange={(value) => setAccount(value)}
                                 >
                                     {renderAccountList()}
                                 </Picker>
-                            </View>
+                                </View>
                         </View>
                         <View style={{...styles.justifyBetween}}>
                             <Text style={styles.label}>Cумма:</Text>
                             <View
-                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7}}>
-                                <TextInputMask
+                                style={{flex: 2, borderWidth: 1, borderColor: colors.BORDER, height: 40, borderRadius: 7, justifyContent: 'center'}}>
+                                <TextInput
                                     style={{
-                                        fontSize: 16
+                                        fontSize: 16,
+                                        marginLeft: 16
                                     }}
-                                    value={price}
-                                    onChangeText={(text) => setPrice(text)}
-                                    keyboardType="numeric"
+                                    defaultValue={price}
+                                    onChangeText={(e) => setPrice(e)}
+                                    keyboardType={'numeric'}
                                     placeholder="Сумма"/>
                             </View>
                         </View>
@@ -187,18 +202,23 @@ function Payment() {
                             flexDirection: 'row',
                             paddingHorizontal: 30
                         }}>
-                            <View>
+                           
                                 <CheckBox
-                                    value={agree}
+                                    checked={agree}
                                     onValueChange={(e) => {
                                         toggleAgree(!agree)
                                     }}
+                                    onPress={(e) => {
+                                        toggleAgree(!agree)
+                                    }}
+                                    color={colors.GOLD}
                                     tintColors={{
                                         true: colors.GOLD,
                                         false: colors.GOLD,
                                     }}
+                                  
                                 />
-                            </View>
+                            
                             <Text style={{
                                 marginLeft: 16,
                                 fontSize: 16,
@@ -230,7 +250,7 @@ function Payment() {
                 }
 
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 

@@ -1,6 +1,8 @@
 import {action, computed, observable} from "mobx";
 import {createContext} from 'react';
 import getStocks from "../api/stocks";
+import AsyncStorage from '@react-native-community/async-storage';
+import STORAGE_KEYS from "../consts/storage_keys";
 
 class StocksStore {
 
@@ -10,9 +12,22 @@ class StocksStore {
 
     @observable stocksLoaded = false;
 
+    @observable readStocks = [];
+
     @computed get _stocks() {
-        return this.stocks.filter(s => s.service_id === null);
+        return this.stocks.filter(s => s.service_id === null)
     }
+
+    @action async setReadStocks(id = null) {
+        let _readStocks = await AsyncStorage.getItem(STORAGE_KEYS.STOCKS);
+        if (_readStocks === null) {
+            _readStocks = [];
+        } else {
+            _readStocks = JSON.parse(_readStocks);
+        }
+        console.log(_readStocks);
+        this.readStocks = _readStocks;
+    };
 
     @action async getStocks() {
         const stocks = await getStocks();
@@ -25,7 +40,9 @@ class StocksStore {
     }
 
     @computed get stocksCount() {
-        return this._stocks.length;
+        return this._stocks.filter(s => {
+            return !this.readStocks.includes(s.id);
+        }).length;
     }
 
     @computed get banners() {

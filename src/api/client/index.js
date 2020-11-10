@@ -8,6 +8,10 @@ export async function setPush(id, push_token) {
     });
 }
 
+export async function deleteMessage(id) {
+    await axios.delete(`${API.DELETE_MESSAGE}/${id}`);
+}
+
 
 export async function getWelcomeMessage(id) {
     await axios.get(`${API.WELCOME}/${id}`);

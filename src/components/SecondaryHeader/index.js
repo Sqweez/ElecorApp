@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, Platform, StatusBar, SafeAreaView} from 'react-native';
 import colors from "../../consts/colors";
 import {Icon} from "native-base";
 import {withNavigation} from 'react-navigation';
 function SecondaryHeader(props) {
     const {children} = props;
     return(
-        <View style={styles.wrapper}>
+        <SafeAreaView style={styles.wrapper}>
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <View style={styles.leftSide}>
@@ -23,7 +23,7 @@ function SecondaryHeader(props) {
                     {children}
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 

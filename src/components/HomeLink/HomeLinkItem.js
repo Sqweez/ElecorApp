@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, TouchableNativeFeedback, Image, Text, Dimensions} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Image, Text, Dimensions} from 'react-native';
 import { Icon } from "native-base";
 import colors from "../../consts/colors";
 import {withNavigation} from 'react-navigation';
@@ -13,7 +13,7 @@ function HomeLinkItem(props) {
         </View> : null;
 
     return(
-        <TouchableNativeFeedback onPress={() => props.navigation.push(props.link)}>
+        <TouchableOpacity onPress={() => props.navigation.push(props.link)}>
             <View style={styles.container}>
                 <View style={styles.linkWrapper}>
                     <Image
@@ -27,7 +27,7 @@ function HomeLinkItem(props) {
                 </View>
                 <Icon type="FontAwesome" name={'chevron-right'} style={styles.icon} />
             </View>
-        </TouchableNativeFeedback>
+        </TouchableOpacity>
     );
 }
 

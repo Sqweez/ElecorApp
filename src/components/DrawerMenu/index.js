@@ -1,5 +1,15 @@
 import React, {useContext} from 'react';
-import {View, StyleSheet, Dimensions, TouchableOpacity, Text, Platform, StatusBar, Image} from 'react-native';
+import {
+    View,
+    StyleSheet,
+    Dimensions,
+    TouchableOpacity,
+    Text,
+    Platform,
+    StatusBar,
+    Alert,
+    SafeAreaView
+} from 'react-native';
 import colors from "../../consts/colors";
 import {Button, Icon} from "native-base";
 const {width} = Dimensions.get('window');
@@ -9,15 +19,32 @@ import SimpleToast from "react-native-simple-toast";
 
 
 
-
 function DrawerMenu(props) {
 
     const userStore = useContext(User);
 
     const logout = async () => {
-      await userStore.logout();
-      SimpleToast.show('Вы вышли из профиля');
-      props.navigation.navigate('Login');
+
+        Alert.alert(
+            'Подтвердите действие',
+            'Вы действительно хотите выйти из учетной записи?',
+            [
+                {
+                    text: 'Отмена',
+                    onPress: () => {},
+                    style: 'cancel'
+                },
+                {
+                    text: 'Выйти',
+                    style: 'destructive',
+                    onPress: async () => {
+                        await userStore.logout();
+                        SimpleToast.show('Вы вышли из профиля');
+                        props.navigation.navigate('Login');
+                    },
+                },
+            ]
+        )
     };
 
     const drawNavLink = (props, link, text, isMain = false, icon = null, count = null) => {
@@ -58,7 +85,7 @@ function DrawerMenu(props) {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View>
             <View style={styles.menuHeader}>
                 <Text style={{
@@ -87,8 +114,8 @@ function DrawerMenu(props) {
                 {userStore.isLoggedIn && userStore.hasConnections ? drawNavLink(props, 'Payment', 'Оплата онлайн') : !userStore.isLoggedIn ? drawNavLink(props, 'Login', 'Оплата онлайн') : null}
             </View>
             </View>
-            {drawNavLink(props, 'Exit', 'Выйти из аккаунта', true, 'exit')}
-        </View>
+            {userStore.isLoggedIn && drawNavLink(props, 'Exit', 'Выйти из аккаунта', true, 'exit')}
+        </SafeAreaView>
     );
 }
 

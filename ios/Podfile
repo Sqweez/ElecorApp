@@ -33,11 +33,9 @@ target 'ElecorApp' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+  use_frameworks!
+  pod 'RNInputMask', :path => '../node_modules/react-native-text-input-mask/ios/InputMask'
 
-
-
-
-  pod 'RNFirebase', :path => '../node_modules/react-native-firebase'
 
   target 'ElecorAppTests' do
     inherit! :search_paths

@@ -24,7 +24,7 @@ function Home(props) {
     return (
         <>
             <Container>
-                <HeaderBar appName={'Elecor'} navigation={props.navigation}/>
+                <HeaderBar appName={'ELECOR'} navigation={props.navigation}/>
                 <Content>
                     <View style={{flex: 1}}>
                         <HomeSlides {...props}/>

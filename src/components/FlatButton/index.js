@@ -1,10 +1,10 @@
 import React from 'react';
-import {View, StyleSheet, TouchableNativeFeedback, Text} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import colors from "../../consts/colors";
 
 function FlatButton(props) {
     return(
-        <TouchableNativeFeedback
+        <TouchableOpacity
             onPress={props.onPress || null}>
             <View style={
                 {
@@ -13,7 +13,7 @@ function FlatButton(props) {
                 }}>
                 <Text style={styles.buttonText}>{props.text || props.children}</Text>
             </View>
-        </TouchableNativeFeedback>
+        </TouchableOpacity>
     );
 }
 

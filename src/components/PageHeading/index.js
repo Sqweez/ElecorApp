@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Text, Dimensions} from 'react-native';
+import {View, StyleSheet, Text, Dimensions, SafeAreaView} from 'react-native';
 import PropTypes from 'prop-types';
 import colors from "../../consts/colors";
 

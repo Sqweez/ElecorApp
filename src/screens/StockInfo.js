@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet, Dimensions, ScrollView, Image, Text} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import PageHeading from "../components/PageHeading";
@@ -8,12 +8,30 @@ import stocks from "../store/stocks";
 const width = Dimensions.get('window').width;
 import { WebView } from 'react-native-webview';
 import HTML from 'react-native-render-html';
+import AsyncStorage from '@react-native-community/async-storage';
+import STORAGE_KEYS from "../consts/storage_keys";
 
 function StockInfo(props) {
 
     const stockStore = useContext(stocks);
 
-    const {title, body, image} = stockStore.stock;
+    const {title, body, image, id} = stockStore.stock;
+
+    async function setItems() {
+        let stocks = await AsyncStorage.getItem(STORAGE_KEYS.STOCKS);
+        if (stocks === null) {
+            stocks = [];
+        } else {
+            stocks = JSON.parse(stocks);
+        }
+        stocks.push(stockStore.stock.id);
+        await AsyncStorage.setItem(STORAGE_KEYS.STOCKS, JSON.stringify(stocks));
+        await stockStore.setReadStocks();
+    }
+
+    useEffect(() => {
+       setItems();
+    }, id);
 
     return (
         <View style={{flex: 1}}>

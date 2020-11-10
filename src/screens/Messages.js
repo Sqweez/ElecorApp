@@ -1,11 +1,11 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {View, StyleSheet, BackHandler, ScrollView} from 'react-native';
+import {View, StyleSheet, BackHandler, ScrollView, Text, Dimensions} from 'react-native';
 import SecondaryHeader from "../components/SecondaryHeader";
 import MessageItem from "../components/MessageItem";
 import MessageModal from "../components/Modal/MessageModal";
 import {observer} from 'mobx-react';
 import User from "../store/User";
-
+import colors from "../consts/colors";
 
 function Messages() {
 
@@ -36,6 +36,10 @@ function Messages() {
         setVisibility(true);
     };
 
+    const deleteMessage = async (id) => {
+        await userStore.deleteMessage(id)
+    };
+
     const renderMessageItems = (messages) => {
         return messages.map((m) => {
             return (
@@ -43,6 +47,7 @@ function Messages() {
                     key={m.id}
                     message={m}
                     onPress={() => showModal(m)}
+                    onSwipe={() => deleteMessage(m.id)}
                 />
             );
         })
@@ -57,7 +62,22 @@ function Messages() {
             <SecondaryHeader text="Сообщения" />
             <ScrollView>
                 <View style={styles.container}>
-                    {renderMessageItems(userStore.messages)}
+                    {userStore.messages.length > 0 && renderMessageItems(userStore.messages)}
+                    {userStore.messages.length === 0 &&
+                    <View style={{
+                        width: Dimensions.get('window').width,
+                        height: Dimensions.get('window').height - 100,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            textAlign: 'center',
+                            color: colors.TEXT,
+                            fontSize: 16,
+                        }}>Нет сообщений!</Text>
+                    </View>
+
+                    }
                 </View>
             </ScrollView>
         </View>

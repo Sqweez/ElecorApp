@@ -1,9 +1,13 @@
-const BASE_URL = 'http://192.168.0.104:8001/api/';
-
-
 /*
-const BASE_URL = 'https://elecor.ariesdev.kz/api/';
+const BASE_URL = 'http://192.168.0.105:8001/api/';
 */
+
+import axios from 'axios';
+
+
+axios.defaults.headers.common['Authorization'] = '$2y$10$XDvabsgYwuidNAWGvaWFeOv1pFGtWgkMlxwopCScJUcFsP.6XvrI.';
+
+const BASE_URL = 'https://elecor.ariesdev.kz/api/';
 
 
 export default {
@@ -18,5 +22,6 @@ export default {
     GET_SERVICES: `${BASE_URL}mobile/services?mobile=true`,
     CREATE_ORDER: `${BASE_URL}orders`,
     MAKE_PAY: `${BASE_URL}mobile/pay`,
-    WELCOME: `${BASE_URL}mobile/welcome`
+    WELCOME: `${BASE_URL}mobile/welcome`,
+    DELETE_MESSAGE: `${BASE_URL}mobile/message`
 }

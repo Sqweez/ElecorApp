@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, TouchableOpacity} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, TouchableOpacity, SafeAreaView} from "react-native";
 import {Button, Icon, Text, Header} from "native-base";
 import React, {useContext} from "react";
 import colors from "../../consts/colors";

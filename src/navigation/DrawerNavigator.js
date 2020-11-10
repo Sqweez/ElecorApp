@@ -1,5 +1,5 @@
 import React from 'react';
-import {StatusBar, Dimensions} from 'react-native';
+import {StatusBar, Dimensions, SafeAreaView} from 'react-native';
 import {createAppContainer} from "react-navigation";
 import {createDrawerNavigator} from "react-navigation-drawer";
 import {createStackNavigator} from "react-navigation-stack";
